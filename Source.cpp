@@ -61,6 +61,8 @@ struct Map_Value_BD_Str {
 
 void find_value_in_bd(char* value,string *db,int col_count,int str_len)
 {
+	int** tokens_len_list = (int**)malloc(sizeof(int*) * col_count);
+	int *iterator_Tokens;
 
 	string *find_bd=(string*)malloc(sizeof(string)*col_count);
 	int* len_list = (int*)malloc(sizeof(int) * col_count);
@@ -120,10 +122,13 @@ void find_value_in_bd(char* value,string *db,int col_count,int str_len)
 
 	for (int i = 0; i < col_count; i++)
 	{
+		tokens_len_list[i] = (int*)malloc(sizeof(int) * MaxCountToken);
+	}
+	for (int i = 0; i < col_count; i++)
+	{
 		int cnt_tok = 0;
 		string copy_str_bd = find_bd[i];
 
-		int iterator_Tokens = 0;
 		string tokens[MaxCountToken];
 		int token_char_iterator = 0;
 
@@ -131,10 +136,14 @@ void find_value_in_bd(char* value,string *db,int col_count,int str_len)
 		for (int j = 0; j < len_list[i]; j++)
 		{
 			if (copy_str_bd[j] == ' ')
-			{		
+			{	
+
 				tokens[iterator_Tokens][token_char_iterator + 1] = '\0';
+		
+				tokens_len_list[i][iterator_Tokens] = token_char_iterator;
+
 				iterator_Tokens++;
-				//tokens[iterator_Tokens] = " ";
+				tokens[iterator_Tokens] = " ";
 				token_char_iterator = 0;
 				cnt_tok++;
 			}
@@ -144,10 +153,16 @@ void find_value_in_bd(char* value,string *db,int col_count,int str_len)
 			}
 
 		}
+
+
+	
+
+
 		//for (int j = 0; j < cnt_tok+1; j++) {
 		//	for (int o = 0; o < len_list[i]; o++)
 		//	{
 		//		printf("%c", tokens[j][o]);
+
 		//	}
 		//	printf("\n");
 		//}
@@ -159,11 +174,11 @@ void find_value_in_bd(char* value,string *db,int col_count,int str_len)
 		//printf("%d\n", cnt_tok);
 		for (int j = 0; j < cnt_tok + 1; j++)
 		{
-			for (int o = 0; o < len_list[i]; o++)
+		/*	for (int o = 0; o < tokens_len_list[j]; o++)
 			{
 				printf("%c", tokens[j][o]);
 			}
-			printf("\n");
+			printf("\n");*/
 			if (strlen(value) == strlen(tokens[j].c_str()))
 			{
 				for (int k = 0; k < strlen(value); k++)
@@ -186,6 +201,22 @@ void find_value_in_bd(char* value,string *db,int col_count,int str_len)
 			
 	
 	}
+
+
+	for (int i1 = 0; i1 < col_count; i1++) {
+		for (int j1 = 0; j1 < ; j1++)
+		{
+			printf("LEN \t %d\n", tokens_len_list[i1][j1]);
+		}
+	}
+
+	for (int i = 0; i < col_count; i++)
+	{
+		free(tokens_len_list[i]);
+	}
+	free(tokens_len_list);
+	free(find_bd);
+	free(len_list);
 
 
 

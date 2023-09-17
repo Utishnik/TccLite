@@ -1,10 +1,10 @@
 ﻿  Source.cpp
-E:\testgame\bazadata\bazadata\Source.cpp(198,6): warning C4101: int_iterator: неиспользованная локальная переменная
-E:\testgame\bazadata\bazadata\Source.cpp(196,6): warning C4101: double_iterator: неиспользованная локальная переменная
-E:\testgame\bazadata\bazadata\Source.cpp(197,6): warning C4101: string_iterator: неиспользованная локальная переменная
+E:\testgame\bazadata\bazadata\Source.cpp(228,6): warning C4101: int_iterator: неиспользованная локальная переменная
+E:\testgame\bazadata\bazadata\Source.cpp(226,6): warning C4101: double_iterator: неиспользованная локальная переменная
+E:\testgame\bazadata\bazadata\Source.cpp(227,6): warning C4101: string_iterator: неиспользованная локальная переменная
   Создание кода
-  2 of 156 functions ( 1.3%) were compiled, the rest were copied from previous compilation.
+  57 of 161 functions (35.4%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+    12 functions had inline decision re-evaluated but remain unchanged
   Создание кода завершено
   bazadata.vcxproj -> E:\testgame\bazadata\x64\Release\bazadata.exe
