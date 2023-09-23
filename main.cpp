@@ -3,7 +3,7 @@
 #include <string.h>
 #include <fstream>
 
-//#define Debug1
+#define Debug1
 
 using namespace std;
 
@@ -62,6 +62,8 @@ struct Map_Value_BD_Str {
 	int end_indx;
 };
 
+
+#ifdef def1
 void find_value_in_bd(char* value, string* db, int col_count, int str_len)
 {
 	int** tokens_len_list = (int**)malloc(sizeof(int*) * col_count);
@@ -108,16 +110,21 @@ void find_value_in_bd(char* value, string* db, int col_count, int str_len)
 		for (int k = 0; k < len_s_bd - iterator; k++) str_BD_no_probel_in_start_penis_hui_blyat_aaaa[k] = '.';
 
 
-
 		for (int k = iterator; k < len_s_bd; k++)
 			str_BD_no_probel_in_start_penis_hui_blyat_aaaa[k - iterator] = str_BD[k];
 		str_BD_no_probel_in_start_penis_hui_blyat_aaaa[len_s_bd - iterator] = '\0';
 
 
-		for (int o = 0; o < len_s_bd; o++)
-			find_bd[i][o] = str_BD_no_probel_in_start_penis_hui_blyat_aaaa[o];
+
+////
+		printf("Db11\n");
+		find_bd[i] = str_BD_no_probel_in_start_penis_hui_blyat_aaaa;
+		printf("Db1\n");
 		len_list[i] = len_s_bd;
 
+
+		printf("Db1\n");
+		
 		/*	for (int o = 0; o < len_s_bd; o++)
 				printf("%c", find_bd[i][o]);
 			printf("\n");*/
@@ -127,7 +134,7 @@ void find_value_in_bd(char* value, string* db, int col_count, int str_len)
 
 	for (int i = 0; i < col_count; i++)
 	{
-		tokens_len_list[i] = (int*)malloc(sizeof(int) * MaxCountToken);
+		tokens_len_list[i] = (int*)malloc(sizeof(int) * col_count);
 	}
 #ifdef Debug1
 	printf("DB\n");
@@ -147,6 +154,7 @@ void find_value_in_bd(char* value, string* db, int col_count, int str_len)
 		{
 			if (copy_str_bd[j] == ' ')
 			{
+				printf("DB4\n");
 
 				tokens[iterator_Tokens[i]][token_char_iterator + 1] = '\0';
 
@@ -236,6 +244,8 @@ void find_value_in_bd(char* value, string* db, int col_count, int str_len)
 
 }
 
+#endif
+
 void read()
 {
 	int double_iterator;
@@ -272,6 +282,92 @@ void read()
 
 }
 
+int counter_probels_string(char *str)
+{
+	int counter=0;
+	for(int i=0;i<strlen(str);i++)
+		if(str[i]==' ') counter++;
+	return counter;
+}
+
+#define MaxLenToken 1024
+
+void find_token(char *str,char *token)
+{
+	int count_probel=counter_probels_string(str);
+	printf("%d\n",count_probel);
+	char **tokens=(char**)malloc(sizeof(char*)*(count_probel+1));
+
+	for(int i=0;i<count_probel;i++)
+		tokens[i]=(char*)malloc(sizeof(char)*strlen(str));
+		
+
+	printf("len = %d\n",strlen(str));
+	printf("db1\n");
+
+	int itrator=0;
+	int iter_char=0;
+	for(int i=0;i<strlen(str);i++)
+	{
+		if(str[i]!=' ') tokens[itrator][iter_char]=str[i]; 
+		iter_char++;
+		if (str[i]==' ')
+		{	iter_char=0;itrator++;
+
+			for(int j=0;j<strlen(str);j++)
+			{
+				tokens[itrator][j]=' ';
+			}
+
+		}
+		printf("db2\n");
+	}
+	printf("db1\n");
+
+	for(int i=0;i<count_probel;i++)
+	{
+		for(int j=0;j<strlen(tokens[i]);j++)
+		{
+			printf("%c",tokens[i][j]);
+		}
+		printf("\n");
+	}
+
+	for(int i=0;i<count_probel;i++)
+		free(tokens[i]);
+	
+	free(tokens);
+
+
+}
+
+int find_value_in_bd(char *value,string *db,const int count_col,const int str_len)
+{
+	printf("foo\n");
+	char **db_char=(char**)malloc(sizeof(char*)*count_col);
+	for(int i=0;i<count_col;i++)
+	{
+		db_char[i]=(char*)malloc(sizeof(char)*str_len);
+	}
+
+	for(int i=0;i<count_col;i++)
+	{
+		for(int j=0;j<db[i].length();j++)
+		{
+			db_char[i][j]=db[i][j];
+		}
+	}
+
+	for(int i=0;i<count_col;i++)
+	{
+		printf("%s\n",db_char[i]);
+	}
+
+
+
+	return 0;
+}
+
 int main()
 {
 	//char str1[64]="3.1415";
@@ -289,6 +385,7 @@ int main()
 
 	//write(arr);
 
+
 	string testdb[3] = {
 		"   niger 1  ",
 		"ilya niger  dyra",
@@ -297,7 +394,12 @@ int main()
 
 	char value[10] = "niger";
 
-	find_value_in_bd(value, testdb, 3, 0);
+	find_value_in_bd(value, testdb, 3, 100);
 
-	system("pause");
+	char *o1="111 111 111";
+	char *o2="222\n";
+
+	find_token(o1,o2);
+
+	//system("pause");
 }
