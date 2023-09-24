@@ -296,10 +296,10 @@ void find_token(char *str,char *token)
 {
 	int count_probel=counter_probels_string(str);
 	printf("%d\n",count_probel);
-	char **tokens=(char**)malloc(sizeof(char*)*(count_probel+1));
+	char **tokens=(char**)malloc(sizeof(char*)*(count_probel+10));
 
 	for(int i=0;i<count_probel;i++)
-		tokens[i]=(char*)malloc(sizeof(char)*strlen(str));
+		tokens[i]=(char*)malloc(sizeof(char)*10*strlen(str));
 		
 
 	printf("len = %d\n",strlen(str));
@@ -309,10 +309,19 @@ void find_token(char *str,char *token)
 	int iter_char=0;
 	for(int i=0;i<strlen(str);i++)
 	{
-		if(str[i]!=' ') tokens[itrator][iter_char]=str[i]; 
+		
+		if(str[i]!=' ') { tokens[itrator][iter_char]=str[i];printf("%c",tokens[itrator][iter_char]);} 
 		iter_char++;
 		if (str[i]==' ')
-		{	iter_char=0;itrator++;
+		{	
+			printf("\n");
+			for(int j=0;j<strlen(str);j++)
+			{
+				tokens[itrator][j]=' ';
+			}
+
+			tokens[itrator][iter_char]='\0';
+			iter_char=0;itrator++;
 
 			for(int j=0;j<strlen(str);j++)
 			{
@@ -320,16 +329,16 @@ void find_token(char *str,char *token)
 			}
 
 		}
-		printf("db2\n");
 	}
-	printf("db1\n");
+	printf("db\n");
 
-	for(int i=0;i<count_probel;i++)
+	for(int i=0;i<itrator;i++)
 	{
 		for(int j=0;j<strlen(tokens[i]);j++)
 		{
 			printf("%c",tokens[i][j]);
 		}
+		printf("token len = %d\n",strlen(tokens[i]));
 		printf("\n");
 	}
 
@@ -396,10 +405,10 @@ int main()
 
 	find_value_in_bd(value, testdb, 3, 100);
 
-	char *o1="111 111 111";
+	char *o1="ilia pidar ebaniy hhhh gfffg 12 ggg \0";
 	char *o2="222\n";
 
 	find_token(o1,o2);
 
-	//system("pause");
+	//syste
 }
