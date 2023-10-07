@@ -253,6 +253,7 @@ void read()
 		count_str++;
 	}
 
+	printf("db1\n");
 	string* db = (string*)malloc(sizeof(string) * count_str);
 
 	{
@@ -262,9 +263,13 @@ void read()
 			str = "";
 			getline(rfile, str);
 			db[i] = str;
+			printf("%s\n",str.c_str());
 			i++;
 		}
+		printf("db2\n");
 	}
+
+
 
 
 
@@ -281,7 +286,16 @@ int counter_probels_string(const char* str)
 }
 
 
-void find_token(const char* str, const char* token)
+void add_str_end_probel( char *str)
+{
+	int len=strlen(str);
+	str[len]=' ';
+	str[len+1]='\0';
+}
+
+
+
+int *find_token( char* str,  char* token,int len_list_token_number,int *len_ret)
 {
 	int count_probel = counter_probels_string(str);
 	printf("%d\n", count_probel);
@@ -291,11 +305,13 @@ void find_token(const char* str, const char* token)
 		tokens[i] = (char*)malloc(sizeof(char)  * strlen(str));
 
 
-	printf("len = %d\n", strlen(str));
+	printf("len = %ld\n", strlen(str));
 	printf("db1\n");
 
 	int itrator = 0;
 	int iter_char = 0;
+
+	add_str_end_probel(str);
 
 	for(int i=0;i<strlen(str);i++)
 	{
@@ -311,6 +327,8 @@ void find_token(const char* str, const char* token)
 			iter_char = 0;
 		}
 	}
+
+
 
 	/*for (int i = 0; i < strlen(str); i++)
 	{
@@ -335,20 +353,54 @@ void find_token(const char* str, const char* token)
 
 	}*/
 
-	printf("db\n");
+
+	int findtklen=strlen(token);
+
+	int *list_number_token=(int*)malloc(sizeof(int)*len_list_token_number);
+	
 
 
+
+	int iteratorn2=0;
 	for (int i = 0; i < itrator; i++)
 	{
-		printf("%s", tokens[i]);
-		printf("\n");
+		int lentk=strlen(tokens[i]);
+
+		if(lentk==findtklen)	
+		{
+			bool boolean1=false;
+			for(int j=0;j<lentk;j++)
+			{
+				if(tokens[i][j]==token[j])
+				{
+					boolean1=true;
+				}
+				else
+				{
+					boolean1=false;
+					break;
+				}
+			}
+			if(boolean1==false) {continue;}
+			else {list_number_token[iteratorn2]=i;iteratorn2++;}
+		}
+		else
+		{
+			continue;
+		}
 	}
+
+	*len_ret=iteratorn2;
 
 	for (int i = 0; i < (count_probel + 10); i++)
 		free((void*)tokens[i]);
 
 	free(tokens);
 
+	
+
+	if(iteratorn2>0) return list_number_token;
+	else return NULL;
 
 }
 
@@ -380,10 +432,11 @@ int main()
 	//find_value_in_bd(value, testdb, 3, 0);
 
 
-	const char* o1 = "ilia pizdaliz ebaniy hhhh gfffg 121 pi 344334 ";
-	const char* o2 = "222\n";
+	 char o1[1024] = "121 ilia pizdaliz ebaniy hhhh   gfffg 121 121  pi 344334";
+	 char o2[1024] = "  ";
 
-	find_token(o1, o2);
+	printf("db\n");
+	read();
 
 
 	system("pause");
