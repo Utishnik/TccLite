@@ -24,7 +24,7 @@ char map_type[type_cnt][max_len_str] = {
 
 
 void write(char str[count_col]);
-void read();
+string* read();
 void rwrite();
 
 void write(char str[count_col][max_len_str])
@@ -235,8 +235,8 @@ void find_value_in_bd(char* value, string* db, int col_count, int str_len)
 
 
 }
-
-void read()
+#define Max_Db_Size 1024
+string  *read(int *retsize)
 {
 	int double_iterator;
 	int string_iterator;
@@ -244,17 +244,12 @@ void read()
 
 	ifstream rfile;
 	rfile.open(path_bd);
-	if (!rfile.is_open()) { printf("error open read file!!!\n"); return; }
+	if (!rfile.is_open()) { printf("error open read file!!!\n"); return NULL; }
 
 	string str = "";
 	int count_str = 0;
-	while (!rfile.eof())
-	{
-		count_str++;
-	}
 
-	printf("db1\n");
-	string* db = (string*)malloc(sizeof(string) * count_str);
+	string* db = (string*)malloc(sizeof(string) * Max_Db_Size);
 
 	{
 		int i = 0;
@@ -263,17 +258,16 @@ void read()
 			str = "";
 			getline(rfile, str);
 			db[i] = str;
-			printf("%s\n",str.c_str());
 			i++;
+			count_str++;
 		}
-		printf("db2\n");
 	}
 
-
-
-
+	*retsize=count_str;
 
 	rfile.close();
+
+	return db;
 
 }
 
@@ -435,8 +429,15 @@ int main()
 	 char o1[1024] = "121 ilia pizdaliz ebaniy hhhh   gfffg 121 121  pi 344334";
 	 char o2[1024] = "  ";
 
-	printf("db\n");
-	read();
+	int retlen=0;
+	string *bd=read(&retlen);
+
+	if(bd==NULL) printf("empty bazadata!\n");
+
+	for(int i=0;i<retlen;i++)
+	{
+		cout <<bd[i]<<endl;
+	}
 
 
 	system("pause");
