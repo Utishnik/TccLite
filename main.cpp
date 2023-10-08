@@ -12,8 +12,6 @@ const int max_len_str = 256;
 string path_bd = "baza_data.txt";
 const int MaxCountToken = 1024;
 
-
-
 const int type_cnt = 3;
 const int max_len_type_name = 32;
 char map_type[type_cnt][max_len_str] = {
@@ -62,179 +60,8 @@ struct Map_Value_BD_Str {
 	int end_indx;
 };
 
-void find_value_in_bd(char* value, string* db, int col_count, int str_len)
-{
-	int** tokens_len_list = (int**)malloc(sizeof(int*) * col_count);
-	int* iterator_Tokens = (int*)malloc(sizeof(int) * MaxCountToken);
-	for (int i = 0; i < MaxCountToken; i++)
-		iterator_Tokens[i] = 0;
+int* find_value_in_bd(char* value, string* db,int count_col,int count_str,int maxlentk);
 
-	string* find_bd = (string*)malloc(sizeof(string) * col_count);
-	int* len_list = (int*)malloc(sizeof(int) * col_count);
-
-	if (find_bd != 0)
-		memset(find_bd, 0, sizeof(string) * col_count);
-	for (int i = 0; i < col_count; i++)
-	{
-		string str_BD;
-		/*	for (int j = 0; (db->c_str())[i][j] != '\0';j++)
-		{
-			str_BD[j] = (db[i]->c_str())[j];
-		}*/
-		int len_s_bd = 0;
-
-		for (int j = 0; db[i][j] != '\0'; j++) { str_BD[j] = (db[i][j]); len_s_bd++; }
-
-
-		//printf("%s\n", str_BD);
-
-
-		//printf("\t [ %d ]\n", len_s_bd);
-
-		string str_BD_no_probel_in_start_penis_hui_blyat_aaaa = "";
-
-		int iterator = 0;
-
-		for (int k = 0; k < len_s_bd; k++)
-		{
-			if (str_BD[k] == ' ')
-				iterator++;
-			else
-				break;
-		}
-
-		//printf("%d = i\n", iterator);
-
-		for (int k = 0; k < len_s_bd - iterator; k++) str_BD_no_probel_in_start_penis_hui_blyat_aaaa[k] = '.';
-
-
-
-		for (int k = iterator; k < len_s_bd; k++)
-			str_BD_no_probel_in_start_penis_hui_blyat_aaaa[k - iterator] = str_BD[k];
-		str_BD_no_probel_in_start_penis_hui_blyat_aaaa[len_s_bd - iterator] = '\0';
-
-
-		for (int o = 0; o < len_s_bd; o++)
-			find_bd[i][o] = str_BD_no_probel_in_start_penis_hui_blyat_aaaa[o];
-		len_list[i] = len_s_bd;
-
-		/*	for (int o = 0; o < len_s_bd; o++)
-				printf("%c", find_bd[i][o]);
-			printf("\n");*/
-
-	}
-
-
-	for (int i = 0; i < col_count; i++)
-	{
-		tokens_len_list[i] = (int*)malloc(sizeof(int) * MaxCountToken);
-	}
-#ifdef Debug1
-	printf("DB\n");
-#endif
-	for (int i = 0; i < col_count; i++)
-	{
-		int cnt_tok = 0;
-		string copy_str_bd = find_bd[i];
-
-		string tokens[MaxCountToken];
-		int token_char_iterator = 0;
-#ifdef Debug1
-		printf("DB2\n");
-#endif
-
-		for (int j = 0; j < len_list[i]; j++)
-		{
-			if (copy_str_bd[j] == ' ')
-			{
-
-				tokens[iterator_Tokens[i]][token_char_iterator + 1] = '\0';
-
-				tokens_len_list[i][iterator_Tokens[i]] = token_char_iterator;
-
-				printf("%d\n", iterator_Tokens[i]);
-				iterator_Tokens[i]++;
-				tokens[iterator_Tokens[i]] = " ";
-				token_char_iterator = 0;
-				cnt_tok++;
-			}
-			else {
-				tokens[iterator_Tokens[i]][token_char_iterator] = copy_str_bd[j];
-				token_char_iterator++;
-			}
-
-		}
-#ifdef Debug1
-		printf("DB3\n");
-#endif
-
-
-
-
-
-		//for (int j = 0; j < cnt_tok+1; j++) {
-		//	for (int o = 0; o < len_list[i]; o++)
-		//	{
-		//		printf("%c", tokens[j][o]);
-
-		//	}
-		//	printf("\n");
-		//}
-
-		int str_number = -1;
-		bool isfind = true;
-
-
-		//printf("%d\n", cnt_tok);
-		for (int j = 0; j < cnt_tok + 1; j++)
-		{
-			/*	for (int o = 0; o < tokens_len_list[j]; o++)
-				{
-					printf("%c", tokens[j][o]);
-				}
-				printf("\n");*/
-			if (strlen(value) == strlen(tokens[j].c_str()))
-			{
-				for (int k = 0; k < strlen(value); k++)
-				{
-					if (value[k] != tokens[j][k]) { break; isfind = false; }
-				}
-			}
-			else
-			{
-				isfind = false;
-				break;
-			}
-
-			if (isfind) {
-				str_number = i + 1;
-				//printf("%d\n", str_number);
-			}
-			isfind = false;
-		}
-
-
-	}
-
-
-	for (int i1 = 0; i1 < col_count; i1++) {
-		for (int j1 = 0; j1 < iterator_Tokens[i1]; j1++)
-		{
-			printf("LEN \t %d\n", tokens_len_list[i1][j1]);
-		}
-	}
-
-	for (int i = 0; i < col_count; i++)
-	{
-		free(tokens_len_list[i]);
-	}
-	free(tokens_len_list);
-	free(find_bd);
-	free(len_list);
-
-
-
-}
 #define Max_Db_Size 1024
 string  *read(int *retsize)
 {
@@ -268,7 +95,6 @@ string  *read(int *retsize)
 	rfile.close();
 
 	return db;
-
 }
 
 int counter_probels_string(const char* str)
@@ -323,31 +149,6 @@ int *find_token( char* str,  char* token,int len_list_token_number,int *len_ret)
 	}
 
 
-
-	/*for (int i = 0; i < strlen(str); i++)
-	{
-
-		if (str[i] != ' ') { tokens[itrator][iter_char] = str[i]; printf("%c", tokens[itrator][iter_char]); }
-		printf("\n%d\n", i);
-		iter_char++;
-		if (str[i] == ' ')
-		{
-			printf("\n");
-			for (int j = 0; j < strlen(str); j++)
-			{
-				tokens[itrator][j] = ' ';
-			}
-
-			tokens[itrator][iter_char] = '\0';
-			iter_char = 0; itrator++;
-
-
-
-		}
-
-	}*/
-
-
 	int findtklen=strlen(token);
 
 	int *list_number_token=(int*)malloc(sizeof(int)*len_list_token_number);
@@ -398,23 +199,78 @@ int *find_token( char* str,  char* token,int len_list_token_number,int *len_ret)
 
 }
 
+void char_str_init(char *str,const char *str2,int len) { for(int i=0;i<len;i++) str[i]=str2[i];}
+
+void init2darr(char ***arr,int h,int w){
+	(*(arr))=(char**)malloc(sizeof(**(arr))*h);
+	for(int i=0;i<h;i++)
+		(*(arr))[i]=(char*)malloc(sizeof((***(arr)))*w);
+}
+
+void free2darr(char ***arr,int h)
+{
+	for(int i=0;i<h;i++)
+		free((*arr)[i]);
+	free((*arr));
+}
+
+template <typename T>
+void print2darr(T a,int h,int w)
+{
+	for(int i=0;i<h;i++)
+	{
+		for(int j=0;j<w;j++)
+			printf("%c",a[i][j]);
+		printf("\n");
+	}
+}
+
+int* find_value_in_bd(char* value, string* db,int count_col,int count_str,int maxlentk)
+{
+	char ***str=(char***)malloc(sizeof(*str)*count_str);
+
+	for(int i=0;i<count_str;i++)
+		str[i]=(char**)malloc(sizeof(**str)*count_col);
+
+	for(int j=0;j<count_str;j++)
+		for(int i=0;i<maxlentk;i++)
+			str[j][i]=(char*)malloc(sizeof(***str)*maxlentk);
+
+
+	char **arr_bd_str;
+
+	init2darr(&arr_bd_str,count_str,maxlentk);
+
+	printf("!\n");
+	for(int i=0;i<count_str;i++)
+		for(int j=0;j<db[i].size();j++)
+		{
+			printf("%c\n",arr_bd_str[i][j]);
+			arr_bd_str[i][j]=db[i][j];
+		}
+
+	print2darr(arr_bd_str,count_str,maxlentk);
+	
+
+	free2darr(&arr_bd_str,count_str);
+	printf("db11\n");
+
+
+	for(int j=0;j<count_str;j++)
+		for(int i=0;i<count_col;i++){
+			printf("i\n");free(str[j][i]);}
+
+	printf("db1\n");
+	for(int i=0;i<count_str;i++)
+	free(str[i]);
+
+	free(str);
+	return 0;
+}
+
+
 int main()
 {
-	//char str1[64]="3.1415";
-	//char str2[64] = "niger";
-	//char arr[count_col][256];
-
-	//for (int i = 0; i < 64; i++)
-	//{
-	//	arr[0][i] = str1[i];
-	//}
-	//for (int i = 0; i < 64; i++)
-	//{
-	//	arr[1][i] = str2[i];
-	//}
-
-	//write(arr);
-
 	string testdb[3] = {
 		"   niger 1  ",
 		"ilya niger  dyra",
@@ -422,9 +278,7 @@ int main()
 	};
 
 	char value[10] = "niger";
-
-	//find_value_in_bd(value, testdb, 3, 0);
-
+	find_value_in_bd(value,testdb,3,3,128);
 
 	 char o1[1024] = "121 ilia pizdaliz ebaniy hhhh   gfffg 121 121  pi 344334";
 	 char o2[1024] = "  ";
@@ -438,7 +292,4 @@ int main()
 	{
 		cout <<bd[i]<<endl;
 	}
-
-
-	system("pause");
 }
