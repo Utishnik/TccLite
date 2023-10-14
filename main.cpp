@@ -5,7 +5,24 @@
 
 //#define Debug1
 
+struct Array2d {
+	int H;
+	int W;
+};
+
 using namespace std;
+
+
+template <typename T>
+void print2darr(T a,int h,int w)
+{
+	for(int i=0;i<h;i++)
+	{
+		for(int j=0;j<w;j++)
+			printf("%c",a[i][j]);
+		printf("\n");
+	}
+}
 
 const int count_col = 2;
 const int max_len_str = 256;
@@ -60,7 +77,7 @@ struct Map_Value_BD_Str {
 	int end_indx;
 };
 
-int** find_value_in_bd(char* value, string* db,int count_col,int count_str,int maxlentk,int);
+int** find_value_in_bd(char* value, string* db,int count_col,int count_str,int maxlentk,int,struct Array2d*);
 
 #define Max_Db_Size 1024
 string  *read(int *retsize)
@@ -117,51 +134,51 @@ void add_str_end_probel( char *str)
 
 int *find_token( char* str,  char* token,int len_list_token_number,int *len_ret)
 {
-	int count_probel = counter_probels_string(str);
-	printf("%d\n", count_probel);
-	char** tokens = (char**)malloc(sizeof(char*) * (count_probel + 10));
-
-	for (int i = 0; i < count_probel+10; i++)
-		tokens[i] = (char*)malloc(sizeof(char)  * strlen(str));
-
-
-	printf("len = %ld\n", strlen(str));
-	printf("db1\n");
-
-	int itrator = 0;
-	int iter_char = 0;
-
 	add_str_end_probel(str);
+	int cnt_probel=counter_probels_string(str);
+	char **tokens=(char**)malloc(sizeof(*tokens)*(cnt_probel+1));
+	for(int i=0;i<(cnt_probel+1);i++)
+		tokens[i]=(char*)malloc(sizeof(**tokens)*len_list_token_number);
+
+	int cnt_tk=0;
+	int lenstr=strlen(str);
+	int lentk=strlen(token);
+
+	int chari=0;
+	int itrator=0;
+	int *strtindxtk=(int*)malloc(sizeof(int)*(cnt_probel+1));
+
+	strtindxtk[0]=0;
+	int *tokenlen=(int*)malloc(sizeof(int)*(cnt_probel+1));
 
 	for(int i=0;i<strlen(str);i++)
 	{
 		if (str[i] != ' ')
 		{
-			tokens[itrator][iter_char] = str[i];
+			tokens[itrator][chari] = str[i];
+
 		}
-		iter_char++;
+		chari++;
 		if (str[i] == ' ')
 		{
-			tokens[itrator][iter_char-1] = '\0';
+			tokens[itrator][chari-1] = '\0';
 			itrator++;
-			iter_char = 0;
+			strtindxtk[itrator]=i+1;
+			chari = 0;
 		}
 	}
 
+	//print2darr(tokens,cnt_probel+1,len_list_token_number);
 
-	int findtklen=strlen(token);
+	int *tkfnd_indx=(int*)malloc(sizeof(*tkfnd_indx)*cnt_tk);
 
-	int *list_number_token=(int*)malloc(sizeof(int)*len_list_token_number);
-	
+	int itr=0;
 
-
-
-	int iteratorn2=0;
 	for (int i = 0; i < itrator; i++)
 	{
-		int lentk=strlen(tokens[i]);
+		int lentk1=strlen(tokens[i]);
 
-		if(lentk==findtklen)	
+		if(lentk1==lentk)	
 		{
 			bool boolean1=false;
 			for(int j=0;j<lentk;j++)
@@ -177,35 +194,23 @@ int *find_token( char* str,  char* token,int len_list_token_number,int *len_ret)
 				}
 			}
 			if(boolean1==false) {continue;}
-			else {list_number_token[iteratorn2]=i;iteratorn2++;}
+			else {tkfnd_indx[itr]=strtindxtk[i];itr++;(*len_ret)++;}
 		}
 		else
 		{
 			continue;
 		}
 	}
-
-	*len_ret=iteratorn2;
-
-	for (int i = 0; i < (count_probel + 10); i++)
-		free((void*)tokens[i]);
-
-	free(tokens);
-
-	
-
-	if(iteratorn2>0) return list_number_token;
-	else return NULL;
-
+	return tkfnd_indx;
 }
 
 void char_str_init(char *str,const char *str2,int len) { for(int i=0;i<len;i++) str[i]=str2[i];}
 
 template <typename T>
 void init2darr(T ***arr,int h,int w){
-	(*(arr))=(char**)malloc(sizeof(**(arr))*h);
+	(*(arr))=(T**)malloc(sizeof(**(arr))*h);
 	for(int i=0;i<h;i++)
-		(*(arr))[i]=(char*)malloc(sizeof((***(arr)))*w);
+		(*(arr))[i]=(T*)malloc(sizeof((***(arr)))*w);
 }
 
 void free2darr(char ***arr,int h)
@@ -215,38 +220,18 @@ void free2darr(char ***arr,int h)
 	free((*arr));
 }
 
-template <typename T>
-void print2darr(T a,int h,int w)
-{
-	for(int i=0;i<h;i++)
-	{
-		for(int j=0;j<w;j++)
-			printf("%c",a[i][j]);
-		printf("\n");
-	}
-}
+
 
 template <typename T>
 void *Malloc(T ptr,int size)
 {
-	return malloc(size*(*ptr))
+	return malloc(size*(*ptr));
 }
 
-int** find_value_in_bd(char* value, string* db,int count_col,int count_str,int maxlentk,int cntfndtk=128)
+
+int** find_value_in_bd(char* value, string* db,int count_col,int count_str,int maxlentk,int cntfndtk,struct Array2d *arr2d)
 {
-	
-	/*char ***str=(char***)malloc(sizeof(*str)*count_str);
-
-	for(int i=0;i<count_str;i++)
-		str[i]=(char**)malloc(sizeof(**str)*count_col);
-
-	for(int j=0;j<count_str;j++)
-		for(int i=0;i<maxlentk;i++)
-			str[j][i]=(char*)malloc(sizeof(***str)*maxlentk);
-
-	*/
 	char **arr_bd_str;
-
 	init2darr(&arr_bd_str,count_str,maxlentk);
 
 	for(int i=0;i<count_str;i++)
@@ -262,22 +247,29 @@ int** find_value_in_bd(char* value, string* db,int count_col,int count_str,int m
 		int lenrt=0;
 		int *fndtk=(int*)malloc(sizeof(*fndtk)*cntfndtk);
 		if(!fndtk) return 0;
-		fndtk=find_token(arr_bd_str[i],value,maxlentk,&lenrt);
+		fndtk=find_token(arr_bd_str[i],value,cntfndtk,&lenrt);
+
+
+
+		printf("%s\t\t%s",arr_bd_str[i],value);
+		for(int k=0;k<lenrt;k++) printf("\t%d ",fndtk[k]);
+		printf("\n");
+
+
 		for(int j=0;j<lenrt;j++)
+		{
 			arr_fnd_tk[i][j]=fndtk[j];
+			//printf("%d ",arr_bd_str[i][j]);
+		}
+		free(fndtk);
+
 	}
 	return arr_fnd_tk;
-	#ifndef Debug
+	#ifdef Debug
 	print2darr(arr_bd_str,count_str,maxlentk);
 	#endif
 
 	free2darr(&arr_bd_str,count_str);
-
-	/* for(int i=1;i<count_str;i++)
-		for(int j=1;j<count_col;j++)
-			delete [] str[i][j];
-
-	delete [] str;*/
 	
 	return NULL;
 }
@@ -287,12 +279,28 @@ int main()
 {
 	string testdb[3] = {
 		"   niger 1  ",
-		"ilya niger  dyra",
+		"ilia  niger  dyra",
 		"aaa 3.14 "
 	};
 
-	char value[10] = "niger";
-	find_value_in_bd(value,testdb,3,3,123);
+	char value[10] = "gggniger";
+	struct Array2d arr2d;
+   //int **arr=find_value_in_bd(value,testdb,3,3,123,128,&arr2d);
+
+
+	char teststr[100]="ggg 111 gggniger gggniger dyr 111 21231112424 gggniger";
+	int ln=0;
+	int *g=find_token(teststr,value,100,&ln);
+	for(int i=0;i<ln;i++)
+	{
+		printf("%d\n",g[i]);
+	}
+
+
+
+
+	//print2darr(arr,3,100);
+
 
 	 char o1[1024] = "121 ilia pizdaliz ebaniy hhhh   gfffg 121 121  pi 344334";
 	 char o2[1024] = "  ";
@@ -302,8 +310,8 @@ int main()
 
 	if(bd==NULL) printf("empty bazadata!\n");
 
+	#ifdef Debug
 	for(int i=0;i<retlen;i++)
-	{
 		cout <<bd[i]<<endl;
-	}
+	#endif
 }
