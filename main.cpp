@@ -77,7 +77,6 @@ struct Map_Value_BD_Str {
 	int end_indx;
 };
 
-int** find_value_in_bd(char* value, string* db,int count_col,int count_str,int maxlentk,int,struct Array2d*);
 
 #define Max_Db_Size 1024
 string  *read(int *retsize)
@@ -201,8 +200,70 @@ int *find_token( char* str,  char* token,int len_list_token_number,int *len_ret)
 			continue;
 		}
 	}
+	if(!len_ret) return NULL;
 	return tkfnd_indx;
 }
+
+bool str_tojdesto(char *str1,char *str2)
+{
+	int len1=strlen(str1);
+	int len2=strlen(str2);
+	if(len1!=len2) return false;
+
+	int len=len1=len2;
+
+	bool result=true;
+	for(int i=0;i<len;i++)
+	{
+		if(str1[i]==str2[i])
+		{
+			result=true;
+			continue;
+		}
+		else
+		{
+			result=false;
+			break;
+		}
+	}
+
+	return result;
+}
+
+int** find_value_in_bd(char* value, string* db,int count_col,int count_str,int maxlentk,int cntfndtk,int **arrln)
+{
+	////
+	char **arr_db=(char**)malloc(sizeof(char*)*count_col);
+	for(int i=0;i<count_col;i++) arr_db[i]=(char*)malloc(sizeof(char)*count_str);
+
+	for(int i=0;i<count_col;i++)
+	{
+		for(int j=0;j<db->size();j++)
+			arr_db[i][j]=db[i][j];
+		arr_db[i][(db->size())]='\0';
+		printf("%ld  %ld\n",db[i].size(),strlen(arr_db[i]));
+	}
+
+	int **result=(int**)malloc(sizeof(int*)*count_col);
+
+	for(int i=0;i<count_col;i++)
+	{
+		int ln_rt=0;
+		result[i]=find_token(arr_db[i],value,cntfndtk,&ln_rt);
+		//printf("%s   %d\n",arr_db[i],ln_rt);
+	
+		(*arrln)[i]=ln_rt;
+	}
+
+	//print2darr(result,count_col,cntfndtk);
+
+
+	for(int i=0;i<count_col;i++) free(arr_db[i]);
+	free(arr_db);
+
+	return result;
+}
+
 
 void char_str_init(char *str,const char *str2,int len) { for(int i=0;i<len;i++) str[i]=str2[i];}
 
@@ -229,72 +290,25 @@ void *Malloc(T ptr,int size)
 }
 
 
-int** find_value_in_bd(char* value, string* db,int count_col,int count_str,int maxlentk,int cntfndtk,struct Array2d *arr2d)
-{
-	char **arr_bd_str;
-	init2darr(&arr_bd_str,count_str,maxlentk);
-
-	for(int i=0;i<count_str;i++)
-		for(int j=0;j<db[i].size();j++)
-		{
-			arr_bd_str[i][j]=db[i][j];
-		}
-
-	int **arr_fnd_tk;
-	init2darr(&arr_fnd_tk,count_str,cntfndtk);
-	for(int i=0;i<count_str;i++)
-	{
-		int lenrt=0;
-		int *fndtk=(int*)malloc(sizeof(*fndtk)*cntfndtk);
-		if(!fndtk) return 0;
-		fndtk=find_token(arr_bd_str[i],value,cntfndtk,&lenrt);
-
-
-
-		printf("%s\t\t%s",arr_bd_str[i],value);
-		for(int k=0;k<lenrt;k++) printf("\t%d ",fndtk[k]);
-		printf("\n");
-
-
-		for(int j=0;j<lenrt;j++)
-		{
-			arr_fnd_tk[i][j]=fndtk[j];
-			//printf("%d ",arr_bd_str[i][j]);
-		}
-		free(fndtk);
-
-	}
-	return arr_fnd_tk;
-	#ifdef Debug
-	print2darr(arr_bd_str,count_str,maxlentk);
-	#endif
-
-	free2darr(&arr_bd_str,count_str);
-	
-	return NULL;
-}
 
 
 int main()
 {
 	string testdb[3] = {
-		"   niger 1  ",
-		"ilia  niger  dyra",
-		"aaa 3.14 "
+		"  gggniger  niger 1  ",
+		"ilia  gggniger gggniger gggniger gggniger niger  dyra",
+		"aaa 3.14 \0"
 	};
 
 	char value[10] = "gggniger";
-	struct Array2d arr2d;
+
+	int *lenarray=(int*)malloc(sizeof(int)*3);
+	int **arrret=find_value_in_bd(value,testdb,3,200,200,10,&lenarray);
+
+
    //int **arr=find_value_in_bd(value,testdb,3,3,123,128,&arr2d);
 
 
-	char teststr[100]="ggg 111 gggniger gggniger dyr 111 21231112424 gggniger";
-	int ln=0;
-	int *g=find_token(teststr,value,100,&ln);
-	for(int i=0;i<ln;i++)
-	{
-		printf("%d\n",g[i]);
-	}
 
 
 
