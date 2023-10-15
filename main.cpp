@@ -241,7 +241,7 @@ int** find_value_in_bd(char* value, string* db,int count_col,int count_str,int m
 		for(int j=0;j<db[i].size();j++)
 			arr_db[i][j]=db[i][j];
 		arr_db[i][(db[i].size())]='\0';
-		printf("%ld  %ld\n",db[i].size(),strlen(arr_db[i]));
+		//printf("%ld  %ld\n",db[i].size(),strlen(arr_db[i]));
 	}
 
 	int **result=(int**)malloc(sizeof(int*)*count_col);
@@ -250,7 +250,6 @@ int** find_value_in_bd(char* value, string* db,int count_col,int count_str,int m
 	{
 		int ln_rt=0;
 		result[i]=find_token(arr_db[i],value,cntfndtk,&ln_rt);
-		//printf("%s   %d\n",arr_db[i],ln_rt);
 	
 		(*arrln)[i]=ln_rt;
 	}
@@ -304,6 +303,15 @@ int main()
 
 	int *lenarray=(int*)malloc(sizeof(int)*3);
 	int **arrret=find_value_in_bd(value,testdb,3,200,200,10,&lenarray);
+
+	for(int i=0;i<3;i++)
+	{
+		for(int j=0;j<lenarray[i];j++)
+		{
+			printf("%d ",arrret[i][j]);
+		}
+		printf("\n");
+	}
 
 
    //int **arr=find_value_in_bd(value,testdb,3,3,123,128,&arr2d);
