@@ -238,9 +238,9 @@ int** find_value_in_bd(char* value, string* db,int count_col,int count_str,int m
 
 	for(int i=0;i<count_col;i++)
 	{
-		for(int j=0;j<db->size();j++)
+		for(int j=0;j<db[i].size();j++)
 			arr_db[i][j]=db[i][j];
-		arr_db[i][(db->size())]='\0';
+		arr_db[i][(db[i].size())]='\0';
 		printf("%ld  %ld\n",db[i].size(),strlen(arr_db[i]));
 	}
 
