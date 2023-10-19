@@ -215,7 +215,7 @@ void err_ptr(void *ptr)
 	printf("error pointer; adress pointer = \t %p",ptr);
 }
 
-int** find_value_in_bd(char* value, string* db,int count_col,int max_len_str,int maxlentk,int cntfndtk,int **arrln,bool *is_empty)
+int** find_value_in_bd(char* value, string* db,int count_col,int max_len_str,int maxlentk,int cntfndtk,int *arrln,bool *is_empty)
 {
 	////
 	char **arr_db=(char**)malloc(sizeof(char*)*count_col);
@@ -237,10 +237,10 @@ int** find_value_in_bd(char* value, string* db,int count_col,int max_len_str,int
 		int ln_rt=0;
 		result[i]=find_token(arr_db[i],value,cntfndtk,&ln_rt);
 	
-		(*arrln)[i]=ln_rt;
+		arrln[i]=ln_rt;
 
 		if(ln_rt>0) empty=true;
-		if(ln_rt<0) err_ptr(((*arrln)+i));
+		if(ln_rt<0) err_ptr(((arrln)+i));
 	}
 
 	*is_empty=empty;
@@ -257,7 +257,6 @@ void init2darr(T ***arr,int h,int w){
 	for(int i=0;i<h;i++)
 		(*(arr))[i]=(T*)malloc(sizeof((***(arr)))*w);
 }
-
 
 template <typename T>
 void init3darr(T ****arr,int h,int w,int d)
@@ -290,16 +289,59 @@ void free2darr(char ***arr,int h)
 	free((*arr));
 }
 
-//записует в базу данных строку равная ровно количеству столбцов в ней
+struct Token_W{
+	int index;
+	int number;
+	bool _unique_pos;
+};
+
+typedef struct Token_W _token_w;
+
+//записует строку в базу данных(в сам массив строк и в фаил)
+void write(char str[CNT_COL][MX_LN_STR_BD],string *bd,bool write_in_file=true)
+{
+	printf("zagluska!\n");
+}
+
+//будет обрабатывать массив который возращет функция find_value_in_bd() 
+//проверяет наличие уникальных токенов на уникальных местах
+//возвращает токены которые на своих уникальных местах
+int **fndarr_processing(int **fndarr,int *index_unique_col,int *arrlen)
+{
+	int **result;
+	int size_arr_indx_unqe_col=(sizeof(index_unique_col)/sizeof(index_unique_col[0]));
+	int size_arrln=(sizeof(arrlen)/sizeof(arrlen[0]));
+	_token_w **tk_w_arr=(_token_w**)malloc(sizeof(*tk_w_arr)*size_arrln);
+	for(int i=0;i<size_arrln;i++)
+	{
+		_token_w *tk_w_arr=(_token_w*)malloc(sizeof(*(tk_w_arr))*arrlen[i]);
+		for(int j=0;j<arrlen[i];j++)
+		{
+			tk_w_arr[j].index=fndarr[i][j];
+			tk_w_arr[j].number=j+1;
+			for(int k=0;k<size_arr_indx_unqe_col;k++)
+			{
+				if(tk_w_arr[j].number==index_unique_col[k]) tk_w_arr[j]._unique_pos=true;
+			}
+		}
+
+	}
+}
+
+//записует в базу данных строку равная ровно количеству столбцов в ней и если уникальные 
+//значение найдутся то вернет их адреса
 //index_unique_col массив индексов которые указают на данные которые должны быть уникальными чтобы
 //строка записалась
 //пример допустим база данных где первый столбец это имена пользователей(уникальные) и второе это их баланс
 //тогда index_unique_col его длина будет равна 1 и он будет равен 0 тоесть первой строке
+//true если не найдено уникальных токенов  false если найдено
 bool write_full_str_in_bd(char str[CNT_COL][MX_LN_STR_BD],string *bd,int cnt_str_in_bd,int *index_unique_col,
-int maxlenstr,int maxlentk,int cntfndtk,int count_col_bd,int **str_find_index) //cntfndtk - максимальное колво индесков токенов которое может найти
+int maxlenstr,int maxlentk,int cntfndtk,int count_col_bd,int **str_find_index,int *err) //cntfndtk - максимальное колво индесков токенов которое может найти
 {
 	//str_find_index - массив индексов строк с найдеными уникальными значениями
 	int count_unique_cols=(sizeof(index_unique_col)/sizeof(index_unique_col[0]));
+	if(count_unique_cols>count_col_bd) *err=-1;
+	if(count_unique_cols==0) {return *err=-2;}
 	char **value_arr=NULL;
 	init2darr(&value_arr,count_unique_cols,maxlenstr);
 
@@ -313,9 +355,9 @@ int maxlenstr,int maxlentk,int cntfndtk,int count_col_bd,int **str_find_index) /
 		}
 	}
 
-	int ***arrlen=0;
+	int **arrlen=0;
 	int ***fndarr;
-	init3darr(&arrlen,count_unique_cols,cnt_str_in_bd,count_col_bd);
+	init2darr(&arrlen,count_unique_cols,cnt_str_in_bd);
 	init3darr(&fndarr,count_unique_cols,cnt_str_in_bd,cntfndtk);
 
 	bool is_empty=true;
@@ -327,8 +369,11 @@ int maxlenstr,int maxlentk,int cntfndtk,int count_col_bd,int **str_find_index) /
 		if(empty_fnd_value==false) is_empty=false;
 	}
 
-	// сделано получения уникальный столбцов осталось прогнать их
-	// и если где то находится значение то возвращается ноль
+	if(!is_empty) {write(str,bd);return true;}
+
+
+
+
 	//а если нет нечего то пишется строка и потом сохраняется в фаил
 	//что бы сделать изменение значения нужно проверить есть ли оно и заменить нужный стобец на найденой строке на желаемое значение
 }
@@ -347,7 +392,7 @@ int main(int argc,char *argv[])
 
 
 	int *lenarray=(int*)malloc(sizeof(int)*3);
-	int **arrret=find_value_in_bd(value,testdb,3,200,200,10,&lenarray);
+	//int **arrret=find_value_in_bd(value,testdb,3,200,200,10,);
 
 	for(int i=0;i<3;i++)
 	{
