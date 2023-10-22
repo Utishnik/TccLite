@@ -305,11 +305,12 @@ _token_w **fndarr_processing(int **fndarr,int *index_unique_col,int *arrlen,int 
 		for(int j=0;j<arrlen[i];j++)
 		{
 			tk_w_arr[i][j].index=fndarr[i][j];
+			printf("%d",tk_w_arr[i][j].index);
 			tk_w_arr[i][j].number=j+1;
+			printf("\t----\t%d\n",tk_w_arr[i][j].number);
 			for(int k=0;k<size_arr_indx_unqe_col;k++)
 				if(tk_w_arr[i][j].number==index_unique_col[k]) { tk_w_arr[i][j]._unique_pos=true;cnt_tk_unqe_pos[i]++;break;}
 		}
-
 	}
 
 	//иницилизация
@@ -388,7 +389,31 @@ int maxlenstr,int maxlentk,int cntfndtk,int count_col_bd,int **str_find_index,in
 	//что бы сделать изменение значения нужно проверить есть ли оно и заменить нужный стобец на найденой строке на желаемое значение
 }
 
+using namespace std;
 int main(void)
 {
+	char value[32]="hfhfh";
+	string bd[3]={
+		"ffghf hfhfh fghfhfh",
+		"ghg hfhfh fhfhfhf",
+		"gghgh5gh 5hty5h 5ytht"
+	};
 
+	int *test_arrlen=(int*)malloc(sizeof(int)*3);
+	bool empty;
+	int **test_fnd_arr = find_value_in_bd(value,bd,3,128,32,100,test_arrlen,&empty);
+
+	int test_indx_unique_col[2]={0,2};
+	int *ret_size;
+	_token_w  **test_tk_w = fndarr_processing(test_fnd_arr,test_indx_unique_col,test_arrlen,&ret_size);
+
+
+	for(int i=0;i<3;i++)
+	{
+		for(int j=0;j<ret_size[i];j++)
+		{
+			printf("%d  ",test_tk_w[i][j].index);
+		}
+		printf("\n");
+	}
 }

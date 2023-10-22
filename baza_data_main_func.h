@@ -15,6 +15,8 @@ using namespace std;
 #define memory_debug //если memory_debug есть то _Malloc выводит отладочную информацию
 //#define malloc _Malloc //заменяет malloc на функцию amlloc с оберткой для отладки находящияся в фаиле tools.cpp реализация tools.h прототип
 
+#define memory_debug
+
 //#define Debug1
 
 const int CNT_COL = 2;
