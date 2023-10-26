@@ -21,16 +21,10 @@ using namespace std;
 
 const int CNT_COL = 2;
 const int MX_LN_STR_BD = 256;
-string path_bd = "baza_data.txt";
 const int MaxCountToken = 1024;
 
 const int type_cnt = 3;
 const int max_len_type_name = 32;
-char map_type[type_cnt][MX_LN_STR_BD] = {
-	"Int",
-	"String",
-	"Double"
-};
 
 
 template <typename T>
@@ -57,8 +51,8 @@ int** find_value_in_bd(char* value, string* db,int count_col,int max_len_str,int
 void char_str_init(char *str,const char *str2,int len);
 
 template <typename T>
-void init2darr(T ***arr,int h,int w);
-
+void init2darr(T ***arr,int h,int w); 
+//todo передовалось по значению
 template <typename T>
 void init3darr(T ****arr,int h,int w,int d);
 

@@ -10,6 +10,14 @@ struct Array2d {
 	int W;
 };
 
+char map_type[type_cnt][MX_LN_STR_BD] = {
+	"Int",
+	"String",
+	"Double"
+};
+
+
+string path_bd = "baza_data.txt";
 
 template <typename T>
 void print2darr(T **a,int h,int w)
@@ -286,6 +294,21 @@ void write(char str[CNT_COL][MX_LN_STR_BD],string *bd,bool write_in_file)
 	printf("zagluska!\n");
 }
 
+
+// получение номера токена по индесу
+// token1 token2 tooken3
+// 0123456789ABCDEF....
+//при вводе любого индеска из 7,8,9,A,B,C  вы получите 2 тоесть номер token2 .Если введете 2 то получите один номер token1
+
+int num_token_by_indx(int index,char *str) 
+{
+	int *arrlen;
+	int cnt_tk=0;
+	char **tokens=_str_to_tokens(str,arrlen,&cnt_tk);
+
+
+}
+
 //будет обрабатывать массив который возращет функция find_value_in_bd() 
 //проверяет наличие уникальных токенов на уникальных местах
 //возвращает токены которые на своих уникальных местах
@@ -305,8 +328,8 @@ _token_w **fndarr_processing(int **fndarr,int *index_unique_col,int *arrlen,int 
 		for(int j=0;j<arrlen[i];j++)
 		{
 			tk_w_arr[i][j].index=fndarr[i][j];
-			printf("%d",tk_w_arr[i][j].index);
-			tk_w_arr[i][j].number=j+1;
+			printf("D %d",tk_w_arr[i][j].index);
+			//tk_w_arr[i][j].number=j;
 			printf("\t----\t%d\n",tk_w_arr[i][j].number);
 			for(int k=0;k<size_arr_indx_unqe_col;k++)
 				if(tk_w_arr[i][j].number==index_unique_col[k]) { tk_w_arr[i][j]._unique_pos=true;cnt_tk_unqe_pos[i]++;break;}
@@ -392,28 +415,15 @@ int maxlenstr,int maxlentk,int cntfndtk,int count_col_bd,int **str_find_index,in
 using namespace std;
 int main(void)
 {
-	char value[32]="hfhfh";
-	string bd[3]={
-		"ffghf hfhfh fghfhfh",
-		"ghg hfhfh fhfhfhf",
-		"gghgh5gh 5hty5h 5ytht"
-	};
+	char **r;
+	char str[200]="minch 3353    3535 3544  fd car hui";
+	int *arrlen=(int*)_Malloc(sizeof(int)*100,0);
+	int cnt_rt=0;
+	r=_str_to_tokens(str,arrlen,&cnt_rt);
 
-	int *test_arrlen=(int*)malloc(sizeof(int)*3);
-	bool empty;
-	int **test_fnd_arr = find_value_in_bd(value,bd,3,128,32,100,test_arrlen,&empty);
-
-	int test_indx_unique_col[2]={0,2};
-	int *ret_size;
-	_token_w  **test_tk_w = fndarr_processing(test_fnd_arr,test_indx_unique_col,test_arrlen,&ret_size);
-
-
-	for(int i=0;i<3;i++)
+	for(int i=0;i<cnt_rt;i++)
 	{
-		for(int j=0;j<ret_size[i];j++)
-		{
-			printf("%d  ",test_tk_w[i][j].index);
-		}
+		for(int j=0;j<arrlen[i];j++) printf("%c",r[i][j]);
 		printf("\n");
 	}
 }

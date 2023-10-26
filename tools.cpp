@@ -1,6 +1,11 @@
 #include "tools.h"
 #include <string>
 #include <string.h>
+#include "baza_data_main_func.h" //todo убрать функцию counter_probels_string, init2darr, init3darr,free2darr и другие в tools
+
+#define Max_Token_Len 1024
+
+#define Dynamic_Max_Token_Len
 
 void *_Malloc(size_t size,int *err)
 {
@@ -55,4 +60,40 @@ char *_str_to_char(std::string str)
         res[i]=str[i];
     }
     return res;
+}
+
+char **_str_to_tokens(const char *str,int *arrlen,int *cnt_tk)
+{
+    size_t len=strlen(str);
+    int cnt_probel=counter_probels_string(str);
+    int max_token_len=0;
+
+    #ifdef Dynamic_Max_Token_Len
+        max_token_len=len;
+    #endif
+
+    #ifndef Dynamic_Max_Token_Len
+        max_token_len=Max_Token_Len;
+    #endif
+    char **tokens_arr;
+    init2darr(&tokens_arr,cnt_probel+2,max_token_len);
+    int itrator=0;
+    int chari=0;
+	for(int i=0;i<len;i++)
+	{
+		if (str[i] != ' ')
+		{
+			tokens_arr[itrator][chari] = str[i];
+            chari++;
+		}
+		if (str[i] == ' ')
+		{
+			tokens_arr[itrator][chari] = '\0';
+            arrlen[itrator]=chari;
+			itrator++;
+			chari = 0;
+		}
+	}
+    (*cnt_tk)=itrator;
+    return tokens_arr;
 }
