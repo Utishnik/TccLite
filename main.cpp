@@ -294,6 +294,11 @@ void write(char str[CNT_COL][MX_LN_STR_BD],string *bd,bool write_in_file)
 	printf("zagluska!\n");
 }
 
+void debug_print(const char *str) //todo import to debug_tools.cpp
+{
+	printf("%s\n",str);
+	//todo write to file debug_msg.txt
+}
 
 // получение номера токена по индесу
 // token1 token2 tooken3
@@ -302,11 +307,19 @@ void write(char str[CNT_COL][MX_LN_STR_BD],string *bd,bool write_in_file)
 
 int num_token_by_indx(int index,char *str) 
 {
-	int *arrlen;
+	int *arrlen=(int*)_Malloc(sizeof(int)*100,NULL);
 	int cnt_tk=0;
-	token *tokens=_str_to_tokens(str,arrlen,&cnt_tk);
-
-	
+	token *tokens=_str_to_tokens(str,arrlen,&cnt_tk);	
+	if(!cnt_tk) debug_print("error cnt_tk=0");
+	for(int i=0;i<cnt_tk;i++)
+	{
+		if( (index>=tokens[i].start_index) && (index<=tokens[i].lost_index) )
+		{
+			printf("%d\n",i);
+			break;
+		}
+	}
+	return 0;
 }
 
 //будет обрабатывать массив который возращет функция find_value_in_bd() 
@@ -419,13 +432,6 @@ int main(void)
 	int arrlen[10];
 	int cnt_tk;
 	token *tok = _str_to_tokens(str,arrlen,&cnt_tk);
-	for(int i=0;i<cnt_tk;i++)
-	{
-		printf("%s\n",tok[i].str);
-		if(i==0)
-		{
-			tok[i].start_index--;
-		}
-			printf("start index = %d\tlost index = %d\n",tok[i].start_index,tok[i].lost_index);
-	}
+
+	num_token_by_indx(10,str);
 }
