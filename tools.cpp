@@ -62,7 +62,7 @@ char *_str_to_char(std::string str)
     return res;
 }
 
-char **_str_to_tokens(const char *str,int *arrlen,int *cnt_tk)
+token *_str_to_tokens(const char *str,int *arrlen,int *cnt_tk)
 {
     size_t len=strlen(str);
     char *str_clone=(char*)_Malloc(sizeof(char)*len,0);
@@ -78,20 +78,22 @@ char **_str_to_tokens(const char *str,int *arrlen,int *cnt_tk)
     #ifndef Dynamic_Max_Token_Len
         max_token_len=Max_Token_Len;
     #endif
-    char **tokens_arr;
-    init2darr(&tokens_arr,cnt_probel+2,max_token_len);
+    token *tokens_arr=(token*)_Malloc(sizeof(token)*cnt_probel,NULL);
     int itrator=0;
     int chari=0;
+    for(int i=0;i<cnt_probel;i++) tokens_arr[i].start_index=0;
 	for(int i=0;i<len+1;i++)
 	{
 		if (str_clone[i] != ' ')
 		{
-			tokens_arr[itrator][chari] = str_clone[i];
+            if(!tokens_arr[itrator].start_index)tokens_arr[itrator].start_index=i;
+			tokens_arr[itrator].str[chari] = str_clone[i];
             chari++;
 		}
 		if (str_clone[i] == ' ')
 		{
-			tokens_arr[itrator][chari] = '\0';
+            tokens_arr[itrator].lost_index=i;
+			tokens_arr[itrator].str[chari] = '\0';
             arrlen[itrator]=chari;
 			itrator++;
 			chari = 0;
@@ -100,3 +102,4 @@ char **_str_to_tokens(const char *str,int *arrlen,int *cnt_tk)
     (*cnt_tk)=itrator;
     return tokens_arr;
 }
+

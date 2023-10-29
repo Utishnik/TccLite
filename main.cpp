@@ -304,7 +304,9 @@ int num_token_by_indx(int index,char *str)
 {
 	int *arrlen;
 	int cnt_tk=0;
-	char **tokens=_str_to_tokens(str,arrlen,&cnt_tk);
+	token *tokens=_str_to_tokens(str,arrlen,&cnt_tk);
+
+	
 }
 
 //будет обрабатывать массив который возращет функция find_value_in_bd() 
@@ -412,41 +414,18 @@ int maxlenstr,int maxlentk,int cntfndtk,int count_col_bd,int **str_find_index,in
 using namespace std;
 int main(void)
 {
-	/*
-	char value[20]="hhh";
-	string bdtest[3]={
-		"1 hhh minch hhh",
-		"111 minch car",
-		"hui  111 111 "
-	};
-	int *arrlen=(int*)malloc(sizeof(int)*3);
-	int **rtarr = find_value_in_bd(value,bdtest,3,100,10,10,arrlen,0);
-	int unpos[2]={0,1};
-	int *retrsizearr=(int*)malloc(sizeof(int)*3);
-	_token_w **tkw=fndarr_processing(rtarr,unpos,arrlen,&retrsizearr);
+	char str[100]="minch car hui pi";
 
-	for(int i=0;i<3;i++)
+	int arrlen[10];
+	int cnt_tk;
+	token *tok = _str_to_tokens(str,arrlen,&cnt_tk);
+	for(int i=0;i<cnt_tk;i++)
 	{
-		for(int j=0;j<retrsizearr[i];i++)
+		printf("%s\n",tok[i].str);
+		if(i==0)
 		{
-			printf("%d\t",tkw[i][j].index);
-			printf("%d\t",tkw[i][j].number);
+			tok[i].start_index--;
 		}
-		printf("\n");
-	}
-
-	*/
-	char test[100]="minch car jui";
-	int *arrlen=(int*)_Malloc(sizeof(int)*10,0);;
-	int cnt=0;
-	char **res=_str_to_tokens(test,arrlen,&cnt);
-
-	for(int i=0;i<cnt;i++)
-	{
-		for(int j=0;j<arrlen[i];j++)
-		{
-			printf("%c",res[i][j]);
-		}
-		printf("\n");
+			printf("start index = %d\tlost index = %d\n",tok[i].start_index,tok[i].lost_index);
 	}
 }
