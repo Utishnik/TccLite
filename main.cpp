@@ -106,75 +106,16 @@ void add_str_end_probel( char *str)
 }
 
 
-
-int *find_token( char* str,  char* token,int len_list_token_number,int *len_ret)
+//ищет токены в троке и возвращает их
+token *find_token( char* str,  char* token,int len_list_token_number,int *len_ret)
+//len_list_token_number - максимально количество токенов которое можно найти
 {
-	add_str_end_probel(str);
-	int cnt_probel=counter_probels_string(str);
-	char **tokens=(char**)malloc(sizeof(*tokens)*(cnt_probel+1));
-	for(int i=0;i<(cnt_probel+1);i++)
-		tokens[i]=(char*)malloc(sizeof(**tokens)*len_list_token_number);
-
+	int *arrlen=(int*)_Malloc(sizeof(int)*len_list_token_number,NULL);
 	int cnt_tk=0;
-	int lenstr=strlen(str);
-	int lentk=strlen(token);
+	struct token *Token = _str_to_tokens(str,arrlen,&cnt_tk);
+	if(!cnt_tk) debug_print("error cnt_tk = 0");
 
-	int chari=0;
-	int itrator=0;
-	int *strtindxtk=(int*)malloc(sizeof(int)*(cnt_probel+1));
-
-	strtindxtk[0]=0;
-	int *tokenlen=(int*)malloc(sizeof(int)*(cnt_probel+1));
-
-	for(int i=0;i<strlen(str);i++)
-	{
-		if (str[i] != ' ')
-		{
-			tokens[itrator][chari] = str[i];
-
-		}
-		chari++;
-		if (str[i] == ' ')
-		{
-			tokens[itrator][chari-1] = '\0';
-			itrator++;
-			strtindxtk[itrator]=i+1;
-			chari = 0;
-		}
-	}
-
-	int *tkfnd_indx=(int*)malloc(sizeof(*tkfnd_indx)*cnt_tk);
-	int itr=0;
-
-	for (int i = 0; i < itrator; i++)
-	{
-		int lentk1=strlen(tokens[i]);
-
-		if(lentk1==lentk)	
-		{
-			bool boolean1=false;
-			for(int j=0;j<lentk;j++)
-			{
-				if(tokens[i][j]==token[j])
-				{
-					boolean1=true;
-				}
-				else
-				{
-					boolean1=false;
-					break;
-				}
-			}
-			if(boolean1==false) {continue;}
-			else {tkfnd_indx[itr]=strtindxtk[i];itr++;(*len_ret)++;}
-		}
-		else
-		{
-			continue;
-		}
-	}
-	if(!len_ret) return NULL;
-	return tkfnd_indx;
+	
 }
 
 bool str_tojdesto(char *str1,char *str2)
@@ -207,9 +148,9 @@ inline void err_ptr(void *ptr)
 	printf("error pointer; adress pointer = \t %p",ptr);
 }
 
-int** find_value_in_bd(char* value, string* db,int count_col,int max_len_str,int maxlentk,int cntfndtk,int *arrln,bool *is_empty)
+token* find_value_in_bd(char* value, string* db,int count_col,int max_len_str,int maxlentk,int cntfndtk,int *arrln,bool *is_empty)
 {
-	////
+	//todo переделать с помощью функции _str_to_char()
 	char **arr_db=(char**)malloc(sizeof(char*)*count_col);
 	for(int i=0;i<count_col;i++) arr_db[i]=(char*)malloc(sizeof(char)*max_len_str);
 
@@ -220,8 +161,10 @@ int** find_value_in_bd(char* value, string* db,int count_col,int max_len_str,int
 		arr_db[i][(db[i].size())]='\0';
 		//printf("%ld  %ld\n",db[i].size(),strlen(arr_db[i]));
 	}
+	//
 
 	int **result=(int**)malloc(sizeof(int*)*count_col);
+
 	bool empty=false;
 
 	for(int i=0;i<count_col;i++)
@@ -238,8 +181,6 @@ int** find_value_in_bd(char* value, string* db,int count_col,int max_len_str,int
 	if(is_empty) *is_empty=empty;
 	for(int i=0;i<count_col;i++) free(arr_db[i]);
 	free(arr_db);
-
-	return result;
 }
 void char_str_init(char *str,const char *str2,int len) { for(int i=0;i<len;i++) str[i]=str2[i];}
 
@@ -328,49 +269,10 @@ int num_token_by_indx(int index,char *str)
 _token_w **fndarr_processing(int **fndarr,int *index_unique_col,int *arrlen,int **ret_size_res_arr)
 {
 	//todo сделать проверку чтобы в index_unique_col небыло одинаковых индексов
-	if(index_unique_col==NULL) {printf("\nDEBUG fndarr_processing index_unique_col = NULL\n");return NULL;}
-	if(arrlen==NULL) {printf("\nDEBUG fndarr_processing arrlen = NULL\n");return NULL;}
-	int **result;
-	unsigned int size_arr_indx_unqe_col=(sizeof(index_unique_col)/sizeof(index_unique_col[0]));
-	unsigned int size_arrln=(sizeof(arrlen)/sizeof(arrlen[0]));
-	_token_w **tk_w_arr=(_token_w**)malloc(sizeof(*tk_w_arr)*size_arrln);
-	int *cnt_tk_unqe_pos=(int*)malloc(sizeof(int)*size_arrln);
-	for(int i=0;i<size_arrln;i++)
-	{
-		tk_w_arr[i]=(_token_w*)malloc(sizeof(*(tk_w_arr[i]))*arrlen[i]);
-		for(int j=0;j<arrlen[i];j++)
-		{
-			tk_w_arr[i][j].index=fndarr[i][j];
-			//tk_w_arr[i][j].number=j;
-			for(int k=0;k<size_arr_indx_unqe_col;k++)
-				if(tk_w_arr[i][j].number==index_unique_col[k]) { tk_w_arr[i][j]._unique_pos=true;cnt_tk_unqe_pos[i]++;break;}
-		}
-	}
 
-	//иницилизация
-	_token_w **res=(_token_w**)malloc(sizeof(*res)*size_arrln);
-	for(int i=0;i<size_arrln;i++)
-		res[i]=(_token_w*)malloc(sizeof(**res)*cnt_tk_unqe_pos[i]);
 
-	int i_iterator=0;
-	int j_iterator=0;
 
-	int *size_res=(int*)malloc(sizeof(int)*size_arrln);
-	memset(size_res,0,(sizeof(int)*size_arrln));
-	for(int i=0;i<size_arrln;i++)
-	{
-		for(int j=0;j<arrlen[i];j++)
-			if(tk_w_arr[i][j]._unique_pos) 
-			{
-				 _token_w_init(&(res[i_iterator][j_iterator]),tk_w_arr[i][j].index,tk_w_arr[i][j].number,tk_w_arr[i][j]._unique_pos); 
-				 j_iterator++;
-				 size_res[i]++;
-			}
-		i_iterator++;
-	}
-	(*ret_size_res_arr)=size_res;
-
-	return res;
+	return 0;
 	//в цикле оставлять только токены где уникальная позиция true
 }
 
@@ -433,5 +335,4 @@ int main(void)
 	int cnt_tk;
 	token *tok = _str_to_tokens(str,arrlen,&cnt_tk);
 
-	num_token_by_indx(10,str);
 }

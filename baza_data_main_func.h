@@ -40,13 +40,13 @@ int counter_probels_string(const char* str);
 
 void add_str_end_probel( char *str); // добавляет в конец строки пробел(это нужно для работа find_token() )
 
-int *find_token( char* str,  char* token,int len_list_token_number,int *len_ret);
+token *find_token( char* str,  char* token,int len_list_token_number,int *len_ret);
 
 bool str_tojdesto(char *str1,char *str2);
 
 inline void err_ptr(void *ptr);
 
-int** find_value_in_bd(char* value, string* db,int count_col,int max_len_str,int maxlentk,int cntfndtk,int *arrln,bool *is_empty);
+token* find_value_in_bd(char* value, string* db,int count_col,int max_len_str,int maxlentk,int cntfndtk,int *arrln,bool *is_empty);
 
 void char_str_init(char *str,const char *str2,int len);
 
