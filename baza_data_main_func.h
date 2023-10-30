@@ -46,7 +46,7 @@ bool str_tojdesto(char *str1,char *str2);
 
 inline void err_ptr(void *ptr);
 
-token* find_value_in_bd(char* value, string* db,int count_col,int max_len_str,int maxlentk,int cntfndtk,int *arrln,bool *is_empty);
+token** find_value_in_bd(char* value, string* db,int count_str,int max_len_str,int maxlentk,int cntfndtk,int *arrln,bool *is_empty);
 
 void char_str_init(char *str,const char *str2,int len);
 

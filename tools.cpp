@@ -51,7 +51,7 @@ char *_str_to_char(std::string str)
 {
     int len=str.length();
     #ifdef memory_debug
-        if(len==NULL) {printf("str.size() = 0\n");return NULL;}  
+        if(len==0) {printf("str.size() = 0\n");return NULL;}  
     #endif
     char *res=(char*)_Malloc((sizeof(char)*len),NULL);
 

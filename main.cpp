@@ -109,7 +109,7 @@ bool str_tojdesto(char *str1,char *str2);
 void debug_print(const char *str);
 
 //ищет токены в троке и возвращает их
-struct token *find_token( char* str,  char* token,int len_list_token_number,int *len_ret)
+struct token *find_token(const char* str,  char* token,int len_list_token_number,int *len_ret)
 //len_list_token_number - максимально количество токенов которое можно найти, также присваевает номера начльный и конечный индексы
 {
 	int *arrlen=(int*)_Malloc(sizeof(int)*len_list_token_number,NULL);
@@ -164,42 +164,29 @@ inline void err_ptr(void *ptr)
 	printf("error pointer; adress pointer = \t %p",ptr);
 }
 
-token* find_value_in_bd(char* value, string* db,int count_col,int max_len_str,int maxlentk,int cntfndtk,int *arrln,bool *is_empty)
+//ищет токен в базе данных возвращет двухмерный массив токенов в arrln записует кол-во найденых токенов по всем строкам
+//arrln не иницилизирутся!
+//is_empty не иницилизируется!
+token** find_value_in_bd(char* value, string* db,int count_str,int max_len_str,int maxlentk,int cntfndtk,int *arrln,bool *is_empty)
 {
-	//перебирать строки и искать токены,  в массив их, массив возвращать
+	int *cnt_probel_arr=(int*)_Malloc(sizeof(int)*count_str,NULL);
 
-	//todo переделать с помощью функции _str_to_char()
-	char **arr_db=(char**)malloc(sizeof(char*)*count_col);
-	for(int i=0;i<count_col;i++) arr_db[i]=(char*)malloc(sizeof(char)*max_len_str);
-
-	for(int i=0;i<count_col;i++)
+	for(int i=0;i<count_str;i++)
+		cnt_probel_arr[i]=(counter_probels_string(db[i].c_str())+1);
+	token **res=(token**)_Malloc(sizeof(token*)*count_str,NULL);
+	for(int i=0;i<count_str;i++)
 	{
-		for(int j=0;j<db[i].size();j++)
-			arr_db[i][j]=db[i][j];
-		arr_db[i][(db[i].size())]='\0';
-		//printf("%ld  %ld\n",db[i].size(),strlen(arr_db[i]));
+		res[i]=(token*)_Malloc(sizeof(token)*cnt_probel_arr[i],NULL);
+		int len_rt=0;
+		res[i]=find_token(db[i].c_str(),value,cnt_probel_arr[i],&len_rt);
+		arrln[i]=len_rt;
+		if(!len_rt) is_empty[i]=true;
+		else is_empty[i]=false;
 	}
-	//
-
-	int **result=(int**)malloc(sizeof(int*)*count_col);
-
-	bool empty=false;
-
-	for(int i=0;i<count_col;i++)
-	{
-		int ln_rt=0;
-		//result[i]=find_token(arr_db[i],value,cntfndtk,&ln_rt);
-	
-		arrln[i]=ln_rt;
-
-		if(ln_rt>0) empty=true;
-		if(ln_rt<0) err_ptr(((arrln)+i));
-	}
-
-	if(is_empty) *is_empty=empty;
-	for(int i=0;i<count_col;i++) free(arr_db[i]);
-	free(arr_db);
+	return res;
 }
+
+
 void char_str_init(char *str,const char *str2,int len) { for(int i=0;i<len;i++) str[i]=str2[i];}
 
 template <typename T>
@@ -347,7 +334,7 @@ int maxlenstr,int maxlentk,int cntfndtk,int count_col_bd,int **str_find_index,in
 }
 
 using namespace std;
-int main(void)
+int main(int argc,char *argv[])
 {
-	
+
 }
