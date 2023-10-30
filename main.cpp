@@ -104,18 +104,34 @@ void add_str_end_probel( char *str)
 	str[len]=' ';
 	str[len+1]='\0';
 }
+bool str_tojdesto(char *str1,char *str2);
 
+void debug_print(const char *str);
 
 //ищет токены в троке и возвращает их
-token *find_token( char* str,  char* token,int len_list_token_number,int *len_ret)
-//len_list_token_number - максимально количество токенов которое можно найти
+struct token *find_token( char* str,  char* token,int len_list_token_number,int *len_ret)
+//len_list_token_number - максимально количество токенов которое можно найти, также присваевает номера начльный и конечный индексы
 {
 	int *arrlen=(int*)_Malloc(sizeof(int)*len_list_token_number,NULL);
 	int cnt_tk=0;
 	struct token *Token = _str_to_tokens(str,arrlen,&cnt_tk);
 	if(!cnt_tk) debug_print("error cnt_tk = 0");
 
-	
+	int cnt_probel=counter_probels_string(str);
+	struct token *result=(struct token*)_Malloc(sizeof(struct token)*(cnt_probel+1),NULL);
+
+	int cnt_find_token=0;
+	for(int i=0;i<cnt_tk;i++)
+	{
+		if(str_tojdesto(token,Token[i].str))
+		{
+			result[cnt_find_token]=Token[i];
+			cnt_find_token++;
+		}
+	}
+	(*len_ret)=cnt_find_token;
+	return result;
+	//перебор токенов, возвращать токены
 }
 
 bool str_tojdesto(char *str1,char *str2)
@@ -150,6 +166,8 @@ inline void err_ptr(void *ptr)
 
 token* find_value_in_bd(char* value, string* db,int count_col,int max_len_str,int maxlentk,int cntfndtk,int *arrln,bool *is_empty)
 {
+	//перебирать строки и искать токены,  в массив их, массив возвращать
+
 	//todo переделать с помощью функции _str_to_char()
 	char **arr_db=(char**)malloc(sizeof(char*)*count_col);
 	for(int i=0;i<count_col;i++) arr_db[i]=(char*)malloc(sizeof(char)*max_len_str);
@@ -170,7 +188,7 @@ token* find_value_in_bd(char* value, string* db,int count_col,int max_len_str,in
 	for(int i=0;i<count_col;i++)
 	{
 		int ln_rt=0;
-		result[i]=find_token(arr_db[i],value,cntfndtk,&ln_rt);
+		//result[i]=find_token(arr_db[i],value,cntfndtk,&ln_rt);
 	
 		arrln[i]=ln_rt;
 
@@ -246,7 +264,7 @@ void debug_print(const char *str) //todo import to debug_tools.cpp
 // 0123456789ABCDEF....
 //при вводе любого индеска из 7,8,9,A,B,C  вы получите 2 тоесть номер token2 .Если введете 2 то получите один номер token1
 
-int num_token_by_indx(int index,char *str) 
+int num_token_by_indx(int index,char *str)  // использовать в поиске токенов в строке
 {
 	int *arrlen=(int*)_Malloc(sizeof(int)*100,NULL);
 	int cnt_tk=0;
@@ -269,6 +287,8 @@ int num_token_by_indx(int index,char *str)
 _token_w **fndarr_processing(int **fndarr,int *index_unique_col,int *arrlen,int **ret_size_res_arr)
 {
 	//todo сделать проверку чтобы в index_unique_col небыло одинаковых индексов
+
+	//получает массив токенов возвращает токены которые уникальные и  на своих уникальных местах
 
 
 
@@ -313,7 +333,7 @@ int maxlenstr,int maxlentk,int cntfndtk,int count_col_bd,int **str_find_index,in
 	for(int i=0;i<count_unique_cols;i++)
 	{	
 		if(is_empty) bool empty_fnd_value=true;//нашлось ли строка с уникальным значением
-		fndarr[i]=find_value_in_bd(value_arr[i],bd,count_col_bd,maxlenstr,maxlentk,cntfndtk,arrlen[i],&empty_fnd_value);
+		//fndarr[i]=find_value_in_bd(value_arr[i],bd,count_col_bd,maxlenstr,maxlentk,cntfndtk,arrlen[i],&empty_fnd_value);
 		if(empty_fnd_value==false) is_empty=false;
 	}
 
@@ -329,10 +349,5 @@ int maxlenstr,int maxlentk,int cntfndtk,int count_col_bd,int **str_find_index,in
 using namespace std;
 int main(void)
 {
-	char str[100]="minch car hui pi";
-
-	int arrlen[10];
-	int cnt_tk;
-	token *tok = _str_to_tokens(str,arrlen,&cnt_tk);
-
+	
 }
