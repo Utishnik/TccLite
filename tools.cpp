@@ -12,7 +12,7 @@ void *_Malloc(size_t size,int *err)
     if(size==0)
     {
         #ifdef memory_debug
-            printf("size = 0\n");if(err) (*err)=-1;
+            printf("malloc error size = 0\n");if(err) (*err)=-1;
         #endif
         return 0;
     }
@@ -82,11 +82,12 @@ token *_str_to_tokens(const char *str,int *arrlen,int *cnt_tk)
     int itrator=0;
     int chari=0;
     for(int i=0;i<cnt_probel;i++) tokens_arr[i].start_index=0;
+
 	for(int i=0;i<len+1;i++)
 	{
 		if (str_clone[i] != ' ')
 		{
-            if(!tokens_arr[itrator].start_index)tokens_arr[itrator].start_index=i;
+            if(!tokens_arr[itrator].start_index) tokens_arr[itrator].start_index=i;
 			tokens_arr[itrator].str[chari] = str_clone[i];
             chari++;
 		}
@@ -96,6 +97,7 @@ token *_str_to_tokens(const char *str,int *arrlen,int *cnt_tk)
 			tokens_arr[itrator].str[chari] = '\0';
             arrlen[itrator]=chari;
 			itrator++;
+            tokens_arr[itrator].number=itrator;
 			chari = 0;
 		}
 	}

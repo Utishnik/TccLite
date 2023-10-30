@@ -168,7 +168,9 @@ inline void err_ptr(void *ptr)
 //arrln не иницилизирутся!
 //is_empty не иницилизируется!
 token** find_value_in_bd(char* value, string* db,int count_str,int max_len_str,int maxlentk,int cntfndtk,int *arrln,bool *is_empty)
+//todo убрать все не нужные аргументы
 {
+	//todo оптимизировать,сделать чтоб возврщались не токены а строки где они находятся,начальный и конечный индексы
 	int *cnt_probel_arr=(int*)_Malloc(sizeof(int)*count_str,NULL);
 
 	for(int i=0;i<count_str;i++)
@@ -271,16 +273,41 @@ int num_token_by_indx(int index,char *str)  // использовать в по�
 //будет обрабатывать массив который возращет функция find_value_in_bd() 
 //проверяет наличие уникальных токенов на уникальных местах
 //возвращает токены которые на своих уникальных местах
-_token_w **fndarr_processing(int **fndarr,int *index_unique_col,int *arrlen,int **ret_size_res_arr)
+_token_w **fndarr_processing(struct token **fndarr,int *index_unique_col,int *arrlen,int count_str_in_db)
 {
-	//todo сделать проверку чтобы в index_unique_col небыло одинаковых индексов
+	int err=0;
+	_token_w **result=(_token_w**)_Malloc(sizeof(_token_w*)*count_str_in_db,&err);
+	if(err==-1) printf("%d\n",__LINE__);
+	int len_index_unque_col_arr=(sizeof(index_unique_col)/sizeof(index_unique_col[0]));
+	for(int i=0;i<count_str_in_db;i++)
+	{
+		result[i]=(_token_w*)_Malloc(sizeof(_token_w)*arrlen[i],&err);
+		if(err==-1) printf("%d\n",__LINE__);
+	}
 
-	//получает массив токенов возвращает токены которые уникальные и  на своих уникальных местах
 
-
-
-	return 0;
-	//в цикле оставлять только токены где уникальная позиция true
+	int itrator_i,itrator_j;
+	itrator_i=itrator_j=0;
+	for(int i=0;i<count_str_in_db;i++)
+	{
+		for(int j=0;j<arrlen[i];j++)
+		{
+			for(int k=0;k<len_index_unque_col_arr;k++)
+			{
+				if(fndarr[i][j].number==index_unique_col[k])
+				{
+					result[itrator_i][itrator_j]._unique_pos=true;
+					result[itrator_i][itrator_j].number=fndarr[i][j].number;
+					result[itrator_i][itrator_j].index=fndarr[i][j].start_index;
+					result[itrator_i][itrator_j].lost_index=fndarr[i][j].lost_index;
+				}
+				break;
+			}
+			itrator_j++;
+		}
+		itrator_i++;
+	}
+	return result;
 }
 
 //записует в базу данных строку равная ровно количеству столбцов в ней и если уникальные 
@@ -336,5 +363,24 @@ int maxlenstr,int maxlentk,int cntfndtk,int count_col_bd,int **str_find_index,in
 using namespace std;
 int main(int argc,char *argv[])
 {
-
+	string db[3]={
+		"1111 111 xyz",
+		"6456 xyz ddddd",
+		"dddddddd 663"
+	};
+	char value[10]="1111";
+	int arrln[3];
+	bool is_emp[3];
+	int ind_a[1]={0};
+	token **arr = find_value_in_bd(value,db,3,100,100,100,arrln,is_emp);
+	_token_w **t  = fndarr_processing(arr,ind_a,arrln,3);
+	for(int i=0;i<3;i++)
+	{
+		int ln=(sizeof(t[i])/sizeof(t[i][0]));
+		for(int j=0;j<ln;j++)
+		{
+			printf("%d",t[i][j]._unique_pos);
+		}
+		printf("\n");
+	}
 }

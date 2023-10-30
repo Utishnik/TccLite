@@ -12,10 +12,8 @@ using namespace std;
 
 #include "baza_data_main_func.h"
 
-#define memory_debug //если memory_debug есть то _Malloc выводит отладочную информацию
+//#define memory_debug //если memory_debug есть то _Malloc выводит отладочную информацию
 //#define malloc _Malloc //заменяет malloc на функцию amlloc с оберткой для отладки находящияся в фаиле tools.cpp реализация tools.h прототип
-
-#define memory_debug
 
 //#define Debug1
 
@@ -62,7 +60,8 @@ void free3darr(T ****arr,int h,int w);
 void free2darr(char ***arr,int h);
 
 struct Token_W{
-	int index;
+	int index;//todo переминовать в start_index, до этого не переминовал может будет огибка с тем что обращаются к index а не к start_index
+	int lost_index;
 	int number;
 	bool _unique_pos;
 };
@@ -72,8 +71,7 @@ void _token_w_init(_token_w *a,int indx,int num,bool unique_pos);
 
 void write(char str[CNT_COL][MX_LN_STR_BD],string *bd,bool write_in_file);
 
-_token_w **fndarr_processing(int **fndarr,int *index_unique_col,int *arrlen,int **ret_size_res_arr);
-
+_token_w **fndarr_processing(struct token **fndarr,int *index_unique_col,int *arrlen,int count_str_in_db);
 bool write_full_str_in_bd(char str[CNT_COL][MX_LN_STR_BD],string *bd,int cnt_str_in_bd,int *index_unique_col,
 int maxlenstr,int maxlentk,int cntfndtk,int count_col_bd,int **str_find_index,int *err);
 
