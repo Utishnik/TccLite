@@ -273,7 +273,8 @@ int num_token_by_indx(int index,char *str)  // использовать в по�
 //будет обрабатывать массив который возращет функция find_value_in_bd() 
 //проверяет наличие уникальных токенов на уникальных местах
 //возвращает токены которые на своих уникальных местах
-_token_w **fndarr_processing(struct token **fndarr,int *index_unique_col,int *arrlen,int count_str_in_db)
+//res_len_arr - иницилизруется
+_token_w **fndarr_processing(struct token **fndarr,int *index_unique_col,int *arrlen,int count_str_in_db,int **res_len_arr)
 {
 	int err=0;
 	_token_w **result=(_token_w**)_Malloc(sizeof(_token_w*)*count_str_in_db,&err);
@@ -284,6 +285,8 @@ _token_w **fndarr_processing(struct token **fndarr,int *index_unique_col,int *ar
 		result[i]=(_token_w*)_Malloc(sizeof(_token_w)*arrlen[i],&err);
 		if(err==-1) printf("%d\n",__LINE__);
 	}
+
+	(*res_len_arr)=(int*)_Malloc(sizeof(int)*count_str_in_db,0);
 
 
 	int itrator_i,itrator_j;
@@ -300,12 +303,14 @@ _token_w **fndarr_processing(struct token **fndarr,int *index_unique_col,int *ar
 					result[itrator_i][itrator_j].number=fndarr[i][j].number;
 					result[itrator_i][itrator_j].index=fndarr[i][j].start_index;
 					result[itrator_i][itrator_j].lost_index=fndarr[i][j].lost_index;
+					break;
 				}
-				break;
 			}
 			itrator_j++;
 		}
 		itrator_i++;
+		(*res_len_arr)[i]=itrator_j;
+		itrator_j=0;
 	}
 	return result;
 }
@@ -364,22 +369,33 @@ using namespace std;
 int main(int argc,char *argv[])
 {
 	string db[3]={
-		"1111 111 xyz",
-		"6456 xyz ddddd",
+		"111 xyz xyz",
+		"6456 1 ddddd",
 		"dddddddd 663"
 	};
-	char value[10]="1111";
+	char value[10]="xyz";
 	int arrln[3];
 	bool is_emp[3];
-	int ind_a[1]={0};
+	int ind_a[2]={1,2};
+	printf("dd\n");
 	token **arr = find_value_in_bd(value,db,3,100,100,100,arrln,is_emp);
-	_token_w **t  = fndarr_processing(arr,ind_a,arrln,3);
+	int *rt_len_arr;
+	printf("dd\n");
+	_token_w **t  = fndarr_processing(arr,ind_a,arrln,3,&rt_len_arr);
+	
+	if(rt_len_arr==0) {
+		printf("err -1\n");
+		return -11;
+	}
+
+	printf("dd\n");
 	for(int i=0;i<3;i++)
 	{
-		int ln=(sizeof(t[i])/sizeof(t[i][0]));
-		for(int j=0;j<ln;j++)
+		printf("%d\n",rt_len_arr[i]);
+		for(int j=0;j<rt_len_arr[i];j++)
 		{
-			printf("%d",t[i][j]._unique_pos);
+			printf("un pos=%d ",t[i][j]._unique_pos);
+			printf("\tindex %d ",t[i][j].index);
 		}
 		printf("\n");
 	}
