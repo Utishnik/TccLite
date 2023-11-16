@@ -172,7 +172,6 @@ token** find_value_in_bd(char* value, string* db,int count_str,int max_len_str,i
 {
 	//todo оптимизировать,сделать чтоб возврщались не токены а строки где они находятся,начальный и конечный индексы
 	int *cnt_probel_arr=(int*)_Malloc(sizeof(int)*count_str,NULL);
-
 	for(int i=0;i<count_str;i++)
 		cnt_probel_arr[i]=(counter_probels_string(db[i].c_str())+1);
 	token **res=(token**)_Malloc(sizeof(token*)*count_str,NULL);
@@ -323,80 +322,60 @@ _token_w **fndarr_processing(struct token **fndarr,int *index_unique_col,int *ar
 //тогда index_unique_col его длина будет равна 1 и он будет равен 0 тоесть первой строке
 //true если не найдено уникальных токенов  false если найдено
 bool write_full_str_in_bd(char str[CNT_COL][MX_LN_STR_BD],string *bd,int cnt_str_in_bd,int *index_unique_col,
-int maxlenstr,int maxlentk,int cntfndtk,int count_col_bd,int **str_find_index,int *err) //cntfndtk - максимальное колво индесков токенов которое может найти
+int maxlenstr,int maxlentk,int cntfndtk,int count_str_bd,_token_w **str_find_index,int lenarr_indx_unique_col,int *err) //cntfndtk - максимальное колво индесков токенов которое может найти
 {
 	//str_find_index - массив индексов строк с найдеными уникальными значениями
-	int count_unique_cols=(sizeof(index_unique_col)/sizeof(index_unique_col[0]));
-	if(count_unique_cols>count_col_bd) *err=-1;
-	if(count_unique_cols==0) {return *err=-2;}
-	char **value_arr=NULL;
-	init2darr(&value_arr,count_unique_cols,maxlenstr);
 
-	int itrator=0;
-	for(int i=0;i<count_unique_cols;i++)
-	{	
-		int ind=index_unique_col[i];
+
+	//init
+	char **unique_v=(char**)_Malloc(sizeof(char*)*lenarr_indx_unique_col,0);
+	for(int i=0;i<lenarr_indx_unique_col;i++)
+		unique_v[i]=(char*)_Malloc(sizeof(char)*MX_LN_STR_BD,0);
+	//
+
+	for(int i=0;i<lenarr_indx_unique_col;i++)
+	{
+		for(int j=0;j<strlen(str[index_unique_col[i]]);j++)
+			unique_v[i][j]=str[index_unique_col[i]][j];
+	}
+
+	int** array_arrlen;
+	bool** is_empty_arr;
+	printf("dd\n");
+	init2darr(&array_arrlen,lenarr_indx_unique_col,count_str_bd);
+	init2darr(&is_empty_arr,lenarr_indx_unique_col,count_str_bd);
+	printf("dd\n");
+	for(int i=0;i<lenarr_indx_unique_col;i++)
+	{
+		printf("dd\n");
+		token** res=find_value_in_bd(unique_v[i],bd,count_str_bd,maxlenstr,maxlentk,cntfndtk,array_arrlen[i],is_empty_arr[i]);
+		printf("dd1\n");
+		int *lenres_ar;
+		_token_w **r = fndarr_processing(res,index_unique_col,array_arrlen[i],count_str_bd,&lenres_ar);
+		for(int j=0;j<count_str_bd;j++)
 		{
-			for(int k=0;k<strlen(str[ind]);k++) value_arr[itrator][k]=str[ind][k];
-			itrator++;
+			for(int k=0;k<lenres_ar[j];k++)
+			{
+				printf("%d ",r[j][k].index);
+			}
+			printf("\n");
 		}
+
 	}
 
-	int **arrlen=0;
-	int ***fndarr;
-	init2darr(&arrlen,count_unique_cols,cnt_str_in_bd);
-	init3darr(&fndarr,count_unique_cols,cnt_str_in_bd,cntfndtk);
-
-	bool is_empty=true;
-	bool empty_fnd_value=true;
-	for(int i=0;i<count_unique_cols;i++)
-	{	
-		if(is_empty) bool empty_fnd_value=true;//нашлось ли строка с уникальным значением
-		//fndarr[i]=find_value_in_bd(value_arr[i],bd,count_col_bd,maxlenstr,maxlentk,cntfndtk,arrlen[i],&empty_fnd_value);
-		if(empty_fnd_value==false) is_empty=false;
-	}
-
-	if(!is_empty) {write(str,bd,true);return true;}
-
-
-
-	return true;
 	//а если нет нечего то пишется строка и потом сохраняется в фаил
 	//что бы сделать изменение значения нужно проверить есть ли оно и заменить нужный стобец на найденой строке на желаемое значение
+	return false;
 }
 
 using namespace std;
 int main(int argc,char *argv[])
 {
-	string db[3]={
-		"111 xyz xyz",
-		"6456 1 ddddd",
-		"dddddddd 663"
-	};
-	char value[10]="xyz";
-	int arrln[3];
-	bool is_emp[3];
-	int ind_a[2]={1,2};
-	printf("dd\n");
-	token **arr = find_value_in_bd(value,db,3,100,100,100,arrln,is_emp);
-	int *rt_len_arr;
-	printf("dd\n");
-	_token_w **t  = fndarr_processing(arr,ind_a,arrln,3,&rt_len_arr);
-	
-	if(rt_len_arr==0) {
-		printf("err -1\n");
-		return -11;
-	}
-
-	printf("dd\n");
-	for(int i=0;i<3;i++)
+	char str[2][256]=
 	{
-		printf("%d\n",rt_len_arr[i]);
-		for(int j=0;j<rt_len_arr[i];j++)
-		{
-			printf("un pos=%d ",t[i][j]._unique_pos);
-			printf("\tindex %d ",t[i][j].index);
-		}
-		printf("\n");
-	}
+		"minch",
+		"car"
+	};
+	int indupos[1]={1};
+	write_full_str_in_bd(str,0,1,indupos,100,100,100,3,0,1,0);
 }
