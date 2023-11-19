@@ -72,7 +72,6 @@ void write(char str[CNT_COL][MX_LN_STR_BD],string *bd,bool write_in_file);
 
 _token_w **fndarr_processing(struct token **fndarr,int *index_unique_col,int *arrlen,int count_str_in_db,int*);
 int num_token_by_indx(int index,char *str);
-bool write_full_str_in_bd(char str[CNT_COL][MX_LN_STR_BD],string *bd,int cnt_str_in_bd,int *index_unique_col,
-int maxlenstr,int maxlentk,int cntfndtk,int count_str_bd,_token_w **str_find_index,int lenarr_indx_unique_col,int *err);
+ //cntfndtk - максимальное колво индесков токенов которое может найти
 
 #endif
