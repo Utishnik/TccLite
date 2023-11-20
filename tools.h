@@ -25,4 +25,5 @@ struct token{
 token *_str_to_tokens(const char *str,int *arrlen,int *cnt_tk);// разделяет строку по проблам на массив меньших строк - токенов
 char **str_to_struct_tokens(const char *str,int *arrlen,int *cnt_tk);
 
+
 #endif 

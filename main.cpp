@@ -114,6 +114,7 @@ bool str_tojdesto(char *str1,char *str2);
 void debug_print(const char *str);
 
 //ищет токены в троке и возвращает их
+//len_ret - кол-во найденых токенов
 struct token *find_token(const char* str,  char* token,int len_list_token_number,int *len_ret)
 //len_list_token_number - максимально количество токенов которое можно найти, также присваевает номера начльный и конечный индексы
 {
@@ -278,6 +279,7 @@ int num_token_by_indx(int index,char *str)  // использовать в по�
 //проверяет наличие уникальных токенов на уникальных местах
 //возвращает токены которые на своих уникальных местах
 //res_len_arr - иницилизруется
+//res_len_arr - это 
 _token_w **fndarr_processing(struct token **fndarr,int *index_unique_col,int *arrlen,int count_str_in_db,int **res_len_arr)
 {
 	int err=0;
@@ -293,10 +295,13 @@ _token_w **fndarr_processing(struct token **fndarr,int *index_unique_col,int *ar
 	(*res_len_arr)=(int*)_Malloc(sizeof(int)*count_str_in_db,0);
 
 
+	int **cnt_find_unique_tk=(int**)_Malloc(sizeof(int)*count_str_in_db,0);
+
 	int itrator_i,itrator_j;
 	itrator_i=itrator_j=0;
 	for(int i=0;i<count_str_in_db;i++)
 	{
+		cnt_find_unique_tk[i]=(int*)_Malloc(sizeof(int)*arrlen[i],0);
 		for(int j=0;j<arrlen[i];j++)
 		{
 			for(int k=0;k<len_index_unque_col_arr;k++)
@@ -319,6 +324,19 @@ _token_w **fndarr_processing(struct token **fndarr,int *index_unique_col,int *ar
 	return result;
 }
 
+struct Data_return_Write_Full_Str_In_BD
+{
+	bool **is_empty_arr;
+	union arr2d_fnd_tk_or_cnt_unique_tk_in_str_bd
+	{//x32 - sizeof 4 	x64 - sizeof 8
+		int **arrlen_arr;
+		int **rt_len_arr_arr;
+	}U;
+};
+
+typedef struct Data_return_Write_Full_Str_In_BD  DRW_in_bd; //abbreviated name
+
+
 //записует в базу данных строку равная ровно количеству столбцов в ней и если уникальные 
 //значение найдутся то вернет их адреса
 //index_unique_col массив индексов которые указают на данные которые должны быть уникальными чтобы
@@ -326,8 +344,12 @@ _token_w **fndarr_processing(struct token **fndarr,int *index_unique_col,int *ar
 //пример допустим база данных где первый столбец это имена пользователей(уникальные) и второе это их баланс
 //тогда index_unique_col его длина будет равна 1 и он будет равен 0 тоесть первой строке
 //true если не найдено уникальных токенов  false если найдено
-bool write_full_str_in_bd(string *bd,char **unique_value_arr,int *array_in_unique_indx,string bazadata_path,int len_array_in_unique_indx,
-int len_str_in_unqe_vle_arr,int cntcol_in_unique_vle_arr)
+//is_empty-return = 1 если не нашлось уникальных токенов на уникальных позициях
+//return_ иницилизируется
+//ret_drw_in_find хранит двумерный булевый массив проверок на пустоту, и union кол-во найденых уникальных токенов или кол-во найденых
+//уникальных токенов на уникальных местах
+bool write_full_str_in_bd(BD bd,char **unique_value_arr,int *array_in_unique_indx,string bazadata_path,int len_array_in_unique_indx,
+int len_str_in_unqe_vle_arr,int cntcol_in_unique_vle_arr,_token_w ****return_,DRW_in_bd *ret_drw_in_find,int mxlenstr=128,int mxlentk=128,int cntfndtk=128)
 {
 	string bd_file_path="";
 	if(bazadata_path.length()==0) bd_file_path=path_bd;
@@ -338,21 +360,49 @@ int len_str_in_unqe_vle_arr,int cntcol_in_unique_vle_arr)
 
 	for(int i=0;i<len_array_in_unique_indx;i++){
 		strcpy(workig_value[i],unique_value_arr[array_in_unique_indx[i]]);
-		printf("%s\n",workig_value[i]);
 	}
 
+	(*return_)=(_token_w***)_Malloc(sizeof(_token_w**),0);
+
+	bool **is_empty_arr;
+	int **arrlen_arr=(int**)_Malloc(sizeof(int*)*len_array_in_unique_indx,0);
+	int **rt_len_arr_arr=(int**)_Malloc(sizeof(int*)*len_array_in_unique_indx,0);
+
+	bool is_empty_return_=true;
+	init2darr(&is_empty_arr,len_array_in_unique_indx,bd.count_str_in_bd);
+	for(int i=0;i<len_array_in_unique_indx;i++)
+	{
+		int *arrlen;
+		token **arr=find_value_in_bd(workig_value[i],bd.bd,bd.count_str_in_bd,mxlenstr,mxlentk,cntfndtk,arrlen,is_empty_arr[i]);
+		int *rt_len_arr;
+		_token_w **rt_value = fndarr_processing(arr,array_in_unique_indx,arrlen,bd.count_str_in_bd,&rt_len_arr);
+
+		if(rt_value) is_empty_return_=false;
+		rt_len_arr_arr[i]=rt_len_arr;
+		arrlen_arr[i]=arrlen;
+		(*return_)[i]=rt_value;
+	}
+
+	ret_drw_in_find->is_empty_arr=is_empty_arr;
+	ret_drw_in_find->U.rt_len_arr_arr;
 	
+	if(is_empty_return_) return true;
+	else return false;
 }
 
 using namespace std;
 int main(int argc,char *argv[])
 {
-	
-	string db[3]={
+	BD test_bd;
+	string db_txt[3]={
 		"minch 130",
 		"car 190",
 		"11 11 1 kurimo"
 	};
+	test_bd.bd=db_txt;
+	test_bd.count_str_in_bd=3;
+	test_bd.len_str=100;
+
 	char *value[3]={
 		"kurimo",
 		"minch",
@@ -386,6 +436,13 @@ int main(int argc,char *argv[])
 		}
 		printf("\n");
 	}*/
+	
+	_token_w ***arr;
+	DRW_in_bd test_drw;
+	if(write_full_str_in_bd(test_bd,value,ind_a,"",2,128,3,&arr,&test_drw))
+		printf("true\n");
+	else
+		printf("true\n");
 
-	write_full_str_in_bd(db,value,ind_a,"",2,128,3);
+	
 }

@@ -29,6 +29,20 @@ void print2darr(T **a,int h,int w);
 
 string* read();
 
+#define IN_Static_BD_str_len
+
+struct BD{
+	#ifndef IN_Static_BD_str_len
+		string *bd;
+		int count_str_in_bd;
+		int *len_str;
+	#endif
+	#ifdef IN_Static_BD_str_len
+		string *bd;
+		int count_str_in_bd;
+		int len_str;//static var
+	#endif
+};
 
 #define Max_Db_Size 1024
 string  *read(int *retsize);
@@ -43,7 +57,7 @@ bool str_tojdesto(char *str1,char *str2);
 
 inline void err_ptr(void *ptr);
 
-token** find_value_in_bd(char* value, string* db,int count_str,int max_len_str,int maxlentk,int cntfndtk,int *arrln,bool *is_empty);
+struct token** find_value_in_bd(char* value, string* db,int count_str,int max_len_str,int maxlentk,int cntfndtk,int *arrln,bool *is_empty); //todo переделать под структуры BD
 
 void char_str_init(char *str,const char *str2,int len);
 
