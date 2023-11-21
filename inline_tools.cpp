@@ -1,6 +1,6 @@
 #include "inline_tools.h"
 
-inline bool is_empty_string(std::string str)
+ bool is_empty_string(std::string str)
  { 
 	    int len=str.size();
             bool res=false;

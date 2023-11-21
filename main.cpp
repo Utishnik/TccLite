@@ -354,7 +354,8 @@ int len_str_in_unqe_vle_arr,int cntcol_in_unique_vle_arr,_token_w ****return_,DR
 {
 	string bd_file_path="";
 	if(bazadata_path.length()==0) bd_file_path=path_bd;
-	if(is_empty_string(bazadata_path)) bd_file_path=path_bd;
+	bool is_empt = is_empty_string(bazadata_path);
+	if(is_empt) bd_file_path=path_bd;
 	if(len_array_in_unique_indx>cntcol_in_unique_vle_arr) {return 0;debug_print("error len_array_in_unique_indx  > cntcol_in_unique_vle_arr");}
 
 	char **workig_value;
@@ -375,16 +376,15 @@ int len_str_in_unqe_vle_arr,int cntcol_in_unique_vle_arr,_token_w ****return_,DR
 	for(int i=0;i<len_array_in_unique_indx;i++)
 	{
 		int *arrlen;
-		token **arr=find_value_in_bd(workig_value[i],bd.bd,bd.count_str_in_bd,mxlenstr,mxlentk,cntfndtk,arrlen,is_empty_arr[i]);
+		token **arr=find_value_in_bd(workig_value[i],bd.bd,bd.count_str_in_bd,mxlenstr,mxlentk,cntfndtk,arrlen,is_empty_arr[i]);//
 		int *rt_len_arr;
 		_token_w **rt_value = fndarr_processing(arr,array_in_unique_indx,arrlen,bd.count_str_in_bd,&rt_len_arr);
-
+		
 		if(rt_value) is_empty_return_=false;
 		rt_len_arr_arr[i]=rt_len_arr;
 		arrlen_arr[i]=arrlen;
 		(*return_)[i]=rt_value;
 	}
-
 	ret_drw_in_find->is_empty_arr=is_empty_arr;
 	ret_drw_in_find->U.rt_len_arr_arr;
 	
