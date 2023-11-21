@@ -13,3 +13,12 @@
             }
 	    return res;
  }
+
+
+inline void Bd_in_str_arr_init(std::string *str1,std::string *str2,int cnt_str)
+{
+    for(int i=0;i<cnt_str;i++)
+    {
+        //str1[i]
+    }
+}
