@@ -350,7 +350,7 @@ typedef struct Data_return_Write_Full_Str_In_BD  DRW_in_bd; //abbreviated name
 //ret_drw_in_find хранит двумерный булевый массив проверок на пустоту, и union кол-во найденых уникальных токенов или кол-во найденых
 //уникальных токенов на уникальных местах
 bool write_full_str_in_bd(BD bd,char **unique_value_arr,int *array_in_unique_indx,string bazadata_path,int len_array_in_unique_indx,
-int len_str_in_unqe_vle_arr,int cntcol_in_unique_vle_arr,_token_w ****return_,DRW_in_bd *ret_drw_in_find,int mxlenstr=128,int mxlentk=128,int cntfndtk=128)
+int len_str_in_unqe_vle_arr,int cntcol_in_unique_vle_arr,_token_w ****return_,DRW_in_bd *ret_drw_in_find,int *index_unique_col,int mxlenstr=128,int mxlentk=128,int cntfndtk=128)
 {
 	string bd_file_path="";
 	if(bazadata_path.length()==0) bd_file_path=path_bd;
@@ -376,10 +376,22 @@ int len_str_in_unqe_vle_arr,int cntcol_in_unique_vle_arr,_token_w ****return_,DR
 	for(int i=0;i<len_array_in_unique_indx;i++)
 	{
 		int *arrlen=(int*)_Malloc(sizeof(int)*cntfndtk,0);
-		token **arr=find_value_in_bd(workig_value[i],bd.bd,bd.count_str_in_bd,mxlenstr,mxlentk,cntfndtk,arrlen,is_empty_arr[i]);//
+		token **arr=find_value_in_bd(workig_value[i],bd.bd,bd.count_str_in_bd,mxlenstr,mxlentk,cntfndtk,arrlen,is_empty_arr[i]);
 		int *rt_len_arr;
-		_token_w **rt_value = fndarr_processing(arr,array_in_unique_indx,arrlen,bd.count_str_in_bd,&rt_len_arr);
+		_token_w **rt_value = fndarr_processing(arr,index_unique_col,arrlen,bd.count_str_in_bd,&rt_len_arr);
 		
+		//debug code
+			for(int i1=0;i1<bd.count_str_in_bd;i1++)
+			{
+				printf("str number  %d\t",(i1+1));
+				for(int j2=0;j2<rt_len_arr[i1];j2++)
+				{
+					printf("is u pos %d  index = %d\t",rt_value[i1][j2]._unique_pos,rt_value[i1][j2].index);
+				}
+				printf("\n");
+			}
+		//
+
 		if(rt_value) is_empty_return_=false;
 		rt_len_arr_arr[i]=rt_len_arr;
 		arrlen_arr[i]=arrlen;
@@ -412,6 +424,7 @@ int main(int argc,char *argv[])
 	};
 
 	int ind_a[2]={0,2};
+	int test_inx_u_col[2]={0,3};
 	/*
 	int arrln[3];
 	bool is_emp[3];
@@ -441,7 +454,7 @@ int main(int argc,char *argv[])
 	
 	_token_w ***arr;
 	DRW_in_bd test_drw;
-	if(write_full_str_in_bd(test_bd,value,ind_a,"",2,128,3,&arr,&test_drw))
+	if(write_full_str_in_bd(test_bd,value,ind_a,"",2,128,3,&arr,&test_drw,test_inx_u_col))
 		printf("true\n");
 	else
 		printf("false\n");

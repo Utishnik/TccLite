@@ -11,7 +11,7 @@
 using namespace std;
 
 #include "baza_data_main_func.h"
-#define memory_debug //если memory_debug есть то _Malloc выводит отладочную информацию
+//#define memory_debug //если memory_debug есть то _Malloc выводит отладочную информацию
 //#define malloc _Malloc //заменяет malloc на функцию amlloc с оберткой для отладки находящияся в фаиле tools.cpp реализация tools.h прототип
 
 //#define Debug1
