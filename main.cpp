@@ -1,4 +1,5 @@
 #include "baza_data_main_func.h"
+#include "inline_tools.h"
 
 #define memory_debug //если memory_debug есть то _Malloc выводит отладочную информацию
 //#define malloc _Malloc //заменяет malloc на функцию amlloc с оберткой для отладки находящияся в фаиле tools.cpp реализация tools.h прототип
@@ -353,6 +354,7 @@ int len_str_in_unqe_vle_arr,int cntcol_in_unique_vle_arr,_token_w ****return_,DR
 {
 	string bd_file_path="";
 	if(bazadata_path.length()==0) bd_file_path=path_bd;
+	if(is_empty_string(bazadata_path)) bd_file_path=path_bd;
 	if(len_array_in_unique_indx>cntcol_in_unique_vle_arr) {return 0;debug_print("error len_array_in_unique_indx  > cntcol_in_unique_vle_arr");}
 
 	char **workig_value;
