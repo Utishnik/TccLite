@@ -5,6 +5,7 @@
 //#define malloc _Malloc //заменяет malloc на функцию amlloc с оберткой для отладки находящияся в фаиле tools.cpp реализация tools.h прототип
 
 //#define Debug1
+#define Debug2
 
 struct Array2d {
 	int H;
@@ -36,7 +37,25 @@ void print2darr(T **a,int h,int w)
 	}
 }
 
+int get_BD_cnt_str_in_db(const BD bd)
+{
+	return (bd.count_str_in_bd);
+}
 
+int get_DB_next_index(const BD bd)
+{
+	return (bd.next_index);
+}
+
+int get_BD_size_arr_in_bd(const BD bd)
+{
+	return (bd.size_arr_in_bd);
+}
+
+void set_BD_size_arr_in_bd(BD *bd,int size)
+{
+	bd->size_arr_in_bd=size;
+}
 
 string* read();
 void rwrite();
@@ -103,8 +122,12 @@ int counter_probels_string(const char* str)
 	return counter;
 }
 
+void BD_Malloc(BD *bd,int size)
+{
+	bd->bd=(std::string*)_Malloc(size*sizeof(std::string),0);
+}
 
-void add_str_end_probel( char *str)
+void add_str_end_probel(char *str)
 {
 	int len=strlen(str);
 	str[len]=' ';
@@ -139,6 +162,18 @@ struct token *find_token(const char* str,  char* token,int len_list_token_number
 	(*len_ret)=cnt_find_token;
 	return result;
 	//перебор токенов, возвращать токены
+}
+
+char* added_line_brk_in_end(const char* str)
+{
+	int len_str=strlen(str);
+	char *str_clone=(char*)_Malloc(sizeof(char)*len_str+2,0);
+	strcpy(str_clone,str);
+	str_clone[len_str]='\n';
+	#ifdef Debug2
+		printf("%s\n",str_clone);
+	#endif
+	return str_clone;
 }
 
 bool str_tojdesto(char *str1,char *str2)
@@ -242,10 +277,51 @@ void _token_w_init(_token_w *a,int indx,int num,bool unique_pos)
 	a->_unique_pos=unique_pos;
 }
 
-//записует строку в базу данных(в сам массив строк и в фаил)
-void write(char str[CNT_COL][MX_LN_STR_BD],string *bd,bool write_in_file)
+//записует строки в базу данных(в сам массив строк и в фаил)
+bool write(char str[CNT_COL][MX_LN_STR_BD],BD *bd,string path_file,bool write_in_file=true)
 {
 	
+}
+
+//todo added fucntion bool write_auto_realloc()
+bool write(std::string *str,BD *bd,std::string path_file,int writing_str_cnt_col,bool write_in_file=true)
+{
+
+	int cnt_str_arr_writing=get_BD_cnt_str_in_db((*bd));
+	int index=get_DB_next_index((*bd));
+	int size=get_BD_size_arr_in_bd((*bd));
+	if(size<=cnt_str_arr_writing) {debug_print("size <= cnt_str_arr_writing  func - bool write(string *,...)");return false;}
+
+	for(int i=0;i<writing_str_cnt_col;i++)
+	{
+		bd->bd[i+index]=str[i];
+		if(write_in_file)
+		{
+			FILE *f=fopen(path_file.c_str(),"a");
+				fprintf(f,str[i].c_str());
+			fclose(f);
+		}
+	}
+}
+
+bool rewrite_full_bd(BD *bd,string path_file)//перезаписует полностью базу данных в указаный фаил
+{
+	int cnt_str=bd->count_str_in_bd;
+	//удаляет все из фаила
+	std::string empty="";
+	FILE *f=fopen(path_file.c_str(),"w");
+		fprintf(f,empty.c_str());
+	fclose(f);
+
+	f=fopen(path_file.c_str(),"a");
+		for(int i=0;i<cnt_str;i++)
+		{
+			fprintf(f,added_line_brk_in_end(bd->bd[i].c_str()));
+			#ifdef Debug2
+				printf("%s\n",added_line_brk_in_end(bd->bd[i].c_str()));
+			#endif
+		}
+	fclose(f);
 }
 
 void debug_print(const char *str) //todo import to debug_tools.cpp
@@ -463,7 +539,8 @@ int main(int argc,char *argv[])
 	
 	_token_w ***arr;
 	DRW_in_bd test_drw;
-	if(write_full_str_in_bd(test_bd,value,ind_a,"",2,128,3,&arr,&test_drw,test_inx_u_col))
+	#define ZAGLUSHKA 0
+	if(write_full_str_in_bd(ZAGLUSHKA,test_bd,value,ind_a,"",2,128,3,&arr,&test_drw,test_inx_u_col))
 		printf("true\n");
 	else
 		printf("false\n");

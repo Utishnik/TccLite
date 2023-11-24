@@ -32,6 +32,8 @@ string* read();
 #define IN_Static_BD_str_len
 
 struct BD{
+	int next_index;
+	int size_arr_in_bd;//размер самого массива строк (*bd)
 	#ifndef IN_Static_BD_str_len
 		string *bd;
 		int count_str_in_bd;
@@ -43,6 +45,16 @@ struct BD{
 		int len_str;//static var
 	#endif
 };
+
+//memory
+void BD_Malloc(BD *bd,int size);
+
+//get
+int get_BD_cnt_str_in_db(const BD bd);
+int get_DB_next_index(const BD bd);
+int get_BD_size_arr_in_bd(const BD bd);
+//set
+void set_BD_size_arr_in_bd(BD *bd,int size);
 
 #define Max_Db_Size 1024
 string  *read(int *retsize);
@@ -82,7 +94,7 @@ typedef struct Token_W _token_w;
 
 void _token_w_init(_token_w *a,int indx,int num,bool unique_pos);
 
-void write(char str[CNT_COL][MX_LN_STR_BD],string *bd,bool write_in_file);
+//bool write(char str[CNT_COL][MX_LN_STR_BD],string *bd,bool write_in_file);
 
 _token_w **fndarr_processing(struct token **fndarr,int *index_unique_col,int *arrlen,int count_str_in_db,int*);
 int num_token_by_indx(int index,char *str);

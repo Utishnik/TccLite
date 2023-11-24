@@ -26,7 +26,7 @@ token *_str_to_tokens(const char *str,int *arrlen,int *cnt_tk);// разделя
 char **str_to_struct_tokens(const char *str,int *arrlen,int *cnt_tk);
 
 
-int find_mx_len_str_array(string* str,int cnt_str); // ищят из массива строк максимальную длину строки
+int find_mx_len_str_array(std::string* str,int cnt_str); // ищят из массива строк максимальную длину строки
 int find_mx_len_str_array(char** str,int cnt_str);
 
 #endif 
