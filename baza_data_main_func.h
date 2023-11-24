@@ -46,6 +46,14 @@ struct BD{
 	#endif
 };
 
+struct Writing_Str_Arr_Data
+{
+	string *writing_data;
+	int cnt_str;
+};
+
+typedef struct Writing_Str_Arr_Data Writing_SAD;
+
 //memory
 void BD_Malloc(BD *bd,int size);
 

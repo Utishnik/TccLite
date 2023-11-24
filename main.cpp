@@ -425,11 +425,11 @@ typedef struct Data_return_Write_Full_Str_In_BD  DRW_in_bd; //abbreviated name
 //return_ иницилизируется
 //ret_drw_in_find хранит двумерный булевый массив проверок на пустоту, и union кол-во найденых уникальных токенов или кол-во найденых
 //уникальных токенов на уникальных местах
-bool write_full_str_in_bd(string *writing_data,BD bd,char **unique_value_arr,int *array_in_unique_indx,string bazadata_path,int len_array_in_unique_indx,
+bool write_full_str_in_bd(Writing_SAD *writing_data,BD bd,char **unique_value_arr,int *array_in_unique_indx,string bazadata_path,int len_array_in_unique_indx,
 int len_str_in_unqe_vle_arr,int cntcol_in_unique_vle_arr,_token_w ****return_,DRW_in_bd *ret_drw_in_find,int *index_unique_col,int mxlenstr=128,int mxlentk=128,int cntfndtk=128)
 {
 	int cnt_str_writing_data=bd.count_str_in_bd;
-	int max_str_len=find_mx_len_str_array(writing_data,cnt_str_writing_data);
+	int max_str_len=find_mx_len_str_array(writing_data->writing_data,cnt_str_writing_data);
 
 	string bd_file_path="";
 	if(bazadata_path.length()==0) bd_file_path=path_bd;
@@ -443,7 +443,6 @@ int len_str_in_unqe_vle_arr,int cntcol_in_unique_vle_arr,_token_w ****return_,DR
 	for(int i=0;i<len_array_in_unique_indx;i++){
 		strcpy(workig_value[i],unique_value_arr[array_in_unique_indx[i]]);
 	}
-
 	(*return_)=(_token_w***)_Malloc(sizeof(_token_w**),0);
 
 	bool **is_empty_arr;
@@ -480,10 +479,9 @@ int len_str_in_unqe_vle_arr,int cntcol_in_unique_vle_arr,_token_w ****return_,DR
 	}
 	ret_drw_in_find->is_empty_arr=is_empty_arr;
 	ret_drw_in_find->U.rt_len_arr_arr;
-	
 	if(is_empty_return_) 
 	{
-
+		write(writing_data->writing_data,&bd,bazadata_path,writing_data->cnt_str);
 		return true;
 	}
 	else return false;
@@ -493,7 +491,7 @@ using namespace std;
 int main(int argc,char *argv[])
 {
 	BD test_bd;
-	string db_txt[3]={
+	string db_txt[10]={
 		"minch 130",
 		"car 190",
 		"kurimo 11 1 kurimo"
@@ -501,6 +499,9 @@ int main(int argc,char *argv[])
 	test_bd.bd=db_txt;
 	test_bd.count_str_in_bd=3;
 	test_bd.len_str=100;
+	
+	test_bd.next_index=3;
+	test_bd.size_arr_in_bd=10;
 
 	char *value[3]={
 		"2",
@@ -536,11 +537,20 @@ int main(int argc,char *argv[])
 		}
 		printf("\n");
 	}*/
+
+	string test_writ_data[2]={
+		"test 1",
+		"test 2"
+	};
+
+	Writing_SAD test;
+	test.cnt_str=2;
+	test.writing_data=test_writ_data;
 	
 	_token_w ***arr;
 	DRW_in_bd test_drw;
 	#define ZAGLUSHKA 0
-	if(write_full_str_in_bd(ZAGLUSHKA,test_bd,value,ind_a,"",2,128,3,&arr,&test_drw,test_inx_u_col))
+	if(write_full_str_in_bd(&test,test_bd,value,ind_a,"",2,128,3,&arr,&test_drw,test_inx_u_col))
 		printf("true\n");
 	else
 		printf("false\n");

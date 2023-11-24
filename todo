@@ -1,3 +1,5 @@
 adding tiny c compiler 
 adding lua and luajit 
-    for working with the database
+    -for working with the database
+add uuid,ssl word,socket work
+fix warning
