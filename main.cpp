@@ -177,7 +177,7 @@ char* added_line_brk_in_end(const char* str)
 	return str_clone;
 }
 
-bool str_tojdesto(char *str1,char *str2)
+bool str_tojdesto(const char *str1,const char *str2)
 {
 	int len1=strlen(str1);
 	int len2=strlen(str2);

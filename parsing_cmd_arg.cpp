@@ -1,0 +1,306 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "baza_data_main_func.h"
+#include "tools.h"
+
+typedef struct TCCOption {
+    const char *name;
+    unsigned short index;
+    unsigned short flags;
+} TCCOption;
+
+enum { ERROR_WARN, ERROR_NOABORT, ERROR_ERROR };
+
+typedef struct CString {
+    int size; /* size in bytes */
+    int size_allocated;
+    void *data; /* either 'char *' or 'nwchar_t *' */
+    struct CString *prev;
+} CString;
+
+#define WARN_ON  1 /* warning is on (-Woption) */
+#define WARN_ERR 2 /* warning is an error (-Werror=option) */
+#define WARN_NOE 4 /* warning is not an error (-Wno-error=option) */
+
+
+
+#define PACK_STACK_SIZE 8
+
+struct Remake_TCCState {
+    unsigned char verbose; /* if true, display some information during compilation */
+    unsigned char nostdinc; /* if true, no standard headers are added */
+    unsigned char nostdlib; /* if true, no standard libraries are added */
+    unsigned char nocommon; /* if true, do not use common symbols for .bss data */
+    unsigned char static_link; /* if true, static linking is performed */
+    unsigned char rdynamic; /* if true, all symbols are exported */
+    unsigned char symbolic; /* if true, resolve symbols in the current module first */
+    unsigned char filetype; /* file type for compilation (NONE,C,ASM) */
+    unsigned char optimize; /* only to #define __OPTIMIZE__ */
+    unsigned char option_pthread; /* -pthread option */
+    unsigned char enable_new_dtags; /* -Wl,--enable-new-dtags */
+    unsigned int  cversion; /* supported C ISO version, 199901 (the default), 201112, ... */
+
+    /* C language options */
+    unsigned char char_is_unsigned;
+    unsigned char leading_underscore;
+    unsigned char ms_extensions; /* allow nested named struct w/o identifier behave like unnamed */
+    unsigned char dollars_in_identifiers;  /* allows '$' char in identifiers */
+    unsigned char ms_bitfields; /* if true, emulate MS algorithm for aligning bitfields */
+
+    /* warning switches */
+    unsigned char warn_none;
+    unsigned char warn_all;
+    unsigned char warn_error;
+    unsigned char warn_write_strings;
+    unsigned char warn_unsupported;
+    unsigned char warn_implicit_function_declaration;
+    unsigned char warn_discarded_qualifiers;
+    #define WARN_ON  1 /* warning is on (-Woption) */
+    unsigned char warn_num; /* temp var for tcc_warning_c() */
+
+    unsigned char option_r; /* option -r */
+    unsigned char do_bench; /* option -bench */
+    unsigned char just_deps; /* option -M  */
+    unsigned char gen_deps; /* option -MD  */
+    unsigned char include_sys_deps; /* option -MD  */
+
+    /* compile with debug symbol (and use them if error during execution) */
+    unsigned char do_debug;
+    unsigned char dwarf;
+    unsigned char do_backtrace;
+#ifdef CONFIG_TCC_BCHECK
+    /* compile with built-in memory and bounds checker */
+    unsigned char do_bounds_check;
+#endif
+    unsigned char test_coverage;  /* generate test coverage code */
+
+    /* use GNU C extensions */
+    unsigned char gnu_ext;
+    /* use TinyCC extensions */
+    unsigned char tcc_ext;
+
+    unsigned char dflag; /* -dX value */
+    unsigned char Pflag; /* -P switch (LINE_MACRO_OUTPUT_FORMAT) */
+
+#ifdef TCC_TARGET_X86_64
+    unsigned char nosse; /* For -mno-sse support. */
+#endif
+#ifdef TCC_TARGET_ARM
+    unsigned char float_abi; /* float ABI of the generated code*/
+#endif
+
+    unsigned char has_text_addr;
+    unsigned section_align; /* section alignment */
+#ifdef TCC_TARGET_I386
+    int seg_size; /* 32. Can be 16 with i386 assembler (.code16) */
+#endif
+
+    char *tcc_lib_path; /* CONFIG_TCCDIR or -B option */
+    char *soname; /* as specified on the command line (-soname) */
+    char *rpath; /* as specified on the command line (-Wl,-rpath=) */
+    char *elf_entryname; /* "_start" unless set */
+    char *init_symbol; /* symbols to call at load-time (not used currently) */
+    char *fini_symbol; /* symbols to call at unload-time (not used currently) */
+    char *mapfile; /* create a mapfile (not used currently) */
+
+    /* output type, see TCC_OUTPUT_XXX */
+    int output_type;
+    /* output format, see TCC_OUTPUT_FORMAT_xxx */
+    int output_format;
+    /* nth test to run with -dt -run */
+    int run_test;
+
+    /* array of all loaded dlls (including those referenced by loaded dlls) */
+    int nb_loaded_dlls;
+
+    /* include paths */
+    char **include_paths;
+    int nb_include_paths;
+
+    char **sysinclude_paths;
+    int nb_sysinclude_paths;
+
+    /* library paths */
+    char **library_paths;
+    int nb_library_paths;
+
+    /* crt?.o object path */
+    char **crt_paths;
+    int nb_crt_paths;
+
+    /* -D / -U options */
+    /* -include options */
+
+    /* error handling */
+    void *error_opaque;
+    void (*error_func)(void *opaque, const char *msg);
+    int error_set_jmp_enabled;
+    int nb_errors;
+
+    /* output file for preprocessing (-E) */
+
+    /* for -MD/-MF: collected dependencies for this compilation */
+    char **target_deps;
+    int nb_target_deps;
+
+    /* compilation */
+
+    int *ifdef_stack_ptr;
+
+    /* included files enclosed with #ifndef MACRO */
+    int nb_cached_includes;
+
+    /* #pragma pack stack */
+    int pack_stack[PACK_STACK_SIZE];
+    int *pack_stack_ptr;
+    char **pragma_libs;
+    int nb_pragma_libs;
+
+    /* inline functions are stored as token lists and compiled last
+       only if referenced */
+    int nb_inline_fns;
+
+    /* sections */
+    int nb_sections; /* number of sections, including first dummy section */
+
+    int nb_priv_sections; /* number of private sections */
+
+    /* predefined sections */
+#ifdef CONFIG_TCC_BCHECK
+    /* bound check related sections */
+    Section *bounds_section; /* contains global data bound description */
+    Section *lbounds_section; /* contains local data bound description */
+#endif
+    #define qrel s1->qrel
+
+#ifdef TCC_TARGET_RISCV64
+    struct pcrel_hi { addr_t addr, val; } last_hi;
+    #define last_hi s1->last_hi
+#endif
+
+#ifdef TCC_TARGET_PE
+    /* PE info */
+    int pe_subsystem;
+    unsigned pe_characteristics;
+    unsigned pe_file_align;
+    unsigned pe_stack_size;
+    addr_t pe_imagebase;
+# ifdef TCC_TARGET_X86_64
+    Section *uw_pdata;
+    int uw_sym;
+    unsigned uw_offs;
+# endif
+#endif
+
+#if defined TCC_TARGET_MACHO
+    char *install_name;
+    uint32_t compatibility_version;
+    uint32_t current_version;
+#endif
+
+#ifndef ELF_OBJ_ONLY
+    int nb_sym_versions;
+    int nb_sym_to_version;
+    int *sym_to_version;
+    int dt_verneednum;
+#endif
+
+#ifdef TCC_IS_NATIVE
+    const char *runtime_main;
+    void **runtime_mem;
+    int nb_runtime_mem;
+#endif
+
+#ifdef CONFIG_TCC_BACKTRACE
+    int rt_num_callers;
+#endif
+
+    /* benchmark info */
+    int total_idents;
+    int total_lines;
+    unsigned int total_bytes;
+    unsigned int total_output[4];
+
+    /* option -dnum (for general development purposes) */
+    int g_debug;
+
+    /* used by tcc_load_ldscript */
+    int fd, cc;
+
+    /* for warnings/errors for object files */
+    const char *current_filename;
+
+    /* used by main and tcc_parse_args only */
+    int nb_files; /* number thereof */
+    int nb_libraries; /* number of libs thereof */
+    char *outfile; /* output filename */
+    char *deps_outfile; /* option -MF */
+    int argc;
+    char **argv;
+};
+
+Remake_TCCState state_parsing;
+
+static void error1(int mode,const Remake_TCCState err_state,const char *fmt, va_list ap)
+{
+    CString cs;
+    if (mode == ERROR_WARN) {
+            unsigned char wopt=err_state.warn_write_strings;
+            if (0 == (wopt & WARN_ON))
+                printf("warning\n");//присоединить va_list
+            if (wopt & WARN_ERR)
+                mode = ERROR_ERROR;
+            if (wopt & WARN_NOE)
+                mode = ERROR_WARN;
+        
+        if (err_state.warn_none)
+            return;
+    }
+}
+
+void _tcc_remake_warning(const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    error1(ERROR_WARN,state_parsing,fmt, ap);
+    va_end(ap);
+}
+
+int tcc_parse_args(Remake_TCCState *s, int *pargc, char ***pargv, int optind)
+{
+    Remake_TCCState *s1 = s;
+    const TCCOption *popt;
+    const char *optarg, *r;
+    const char *run = NULL;
+    int x;
+    int tool = 1, arg_start = 0, noaction = optind;
+    char **argv = *pargv;
+    int argc = *pargc;
+
+    while (optind < argc) 
+    {
+        r = argv[optind];
+        optind++;
+        if(tool)
+        {
+            if (r[0] == 'B' && r[1] == 'D' && r[2] == ' ')
+            {
+                r=argv[optind];
+                if(!strlen(r))
+                {
+                    state_parsing.warn_write_strings=0x01;
+                    continue;
+                }
+
+                ++s->verbose;
+            }
+            continue;
+        }
+        
+
+        if(str_tojdesto(r,"write"))
+        {
+            //write logic
+        }
+    }
+}

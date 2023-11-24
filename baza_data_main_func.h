@@ -73,7 +73,7 @@ void add_str_end_probel( char *str); // добавляет в конец стр�
 
 token *find_token( char* str,  char* token,int len_list_token_number,int *len_ret);
 
-bool str_tojdesto(char *str1,char *str2);
+bool str_tojdesto(const char *str1,const char *str2);
 
 inline void err_ptr(void *ptr);
 
