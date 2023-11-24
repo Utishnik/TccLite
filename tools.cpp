@@ -105,3 +105,21 @@ token *_str_to_tokens(const char *str,int *arrlen,int *cnt_tk)
     return tokens_arr;
 }
 
+// ищят из массива строк максимальную длину строки
+int find_mx_len_str_array(string* str,int cnt_str)
+{
+    int max_strlen=str[0].size();
+    for(int i=1;i<cnt_str;i++)
+        if(str[i].size()>max_strlen)
+            max_strlen=str[i].size();
+    return max_strlen;
+}
+
+int find_mx_len_str_array(char** str,int cnt_str)
+{
+    int max_strlen=strlen(str[0]);
+    for(int i=1;i<cnt_str;i++)
+        if(strlen(str[i])>max_strlen)
+            max_strlen=strlen(str[i]);
+    return max_strlen;
+}

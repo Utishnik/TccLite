@@ -245,7 +245,7 @@ void _token_w_init(_token_w *a,int indx,int num,bool unique_pos)
 //записует строку в базу данных(в сам массив строк и в фаил)
 void write(char str[CNT_COL][MX_LN_STR_BD],string *bd,bool write_in_file)
 {
-	printf("zagluska!\n");
+	
 }
 
 void debug_print(const char *str) //todo import to debug_tools.cpp
@@ -349,9 +349,12 @@ typedef struct Data_return_Write_Full_Str_In_BD  DRW_in_bd; //abbreviated name
 //return_ иницилизируется
 //ret_drw_in_find хранит двумерный булевый массив проверок на пустоту, и union кол-во найденых уникальных токенов или кол-во найденых
 //уникальных токенов на уникальных местах
-bool write_full_str_in_bd(BD bd,char **unique_value_arr,int *array_in_unique_indx,string bazadata_path,int len_array_in_unique_indx,
+bool write_full_str_in_bd(string *writing_data,BD bd,char **unique_value_arr,int *array_in_unique_indx,string bazadata_path,int len_array_in_unique_indx,
 int len_str_in_unqe_vle_arr,int cntcol_in_unique_vle_arr,_token_w ****return_,DRW_in_bd *ret_drw_in_find,int *index_unique_col,int mxlenstr=128,int mxlentk=128,int cntfndtk=128)
 {
+	int cnt_str_writing_data=bd.count_str_in_bd;
+	int max_str_len=find_mx_len_str_array(writing_data,cnt_str_writing_data);
+
 	string bd_file_path="";
 	if(bazadata_path.length()==0) bd_file_path=path_bd;
 	bool is_empt = is_empty_string(bazadata_path);
@@ -392,7 +395,9 @@ int len_str_in_unqe_vle_arr,int cntcol_in_unique_vle_arr,_token_w ****return_,DR
 			}
 		//
 
-		if(rt_value) is_empty_return_=false;
+		for(int i1=0;i1<bd.count_str_in_bd;i1++)
+			if(rt_value[i1]) {is_empty_return_=false;break;}
+
 		rt_len_arr_arr[i]=rt_len_arr;
 		arrlen_arr[i]=arrlen;
 		(*return_)[i]=rt_value;
@@ -400,7 +405,11 @@ int len_str_in_unqe_vle_arr,int cntcol_in_unique_vle_arr,_token_w ****return_,DR
 	ret_drw_in_find->is_empty_arr=is_empty_arr;
 	ret_drw_in_find->U.rt_len_arr_arr;
 	
-	if(is_empty_return_) return true;
+	if(is_empty_return_) 
+	{
+
+		return true;
+	}
 	else return false;
 }
 
@@ -418,9 +427,9 @@ int main(int argc,char *argv[])
 	test_bd.len_str=100;
 
 	char *value[3]={
-		"kurimo",
+		"2",
 		"minch",
-		"car"
+		"11111"
 	};
 
 	int ind_a[2]={0,2};
