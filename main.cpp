@@ -1,5 +1,6 @@
 #include "baza_data_main_func.h"
 #include "inline_tools.h"
+#include "debug.h"
 
 #define memory_debug //если memory_debug есть то _Malloc выводит отладочную информацию
 //#define malloc _Malloc //заменяет malloc на функцию amlloc с оберткой для отладки находящияся в фаиле tools.cpp реализация tools.h прототип
@@ -290,15 +291,15 @@ bool write(std::string *str,BD *bd,std::string path_file,int writing_str_cnt_col
 	int cnt_str_arr_writing=get_BD_cnt_str_in_db((*bd));
 	int index=get_DB_next_index((*bd));
 	int size=get_BD_size_arr_in_bd((*bd));
-	if(size<=cnt_str_arr_writing) {debug_print("size <= cnt_str_arr_writing  func - bool write(string *,...)");return false;}
-
+	if(size<=cnt_str_arr_writing) {debug_print("size <= cnt_str_arr_writing  func - bool write(string *,...)");return false;}	
 	for(int i=0;i<writing_str_cnt_col;i++)
 	{
 		bd->bd[i+index]=str[i];
 		if(write_in_file)
 		{
 			FILE *f=fopen(path_file.c_str(),"a");
-				fprintf(f,str[i].c_str());
+			if(!f) debug_print("error fopen() write fucntion");
+				fprintf(f,"%s\n",str[i].c_str());//
 			fclose(f);
 		}
 	}
@@ -481,7 +482,7 @@ int len_str_in_unqe_vle_arr,int cntcol_in_unique_vle_arr,_token_w ****return_,DR
 	ret_drw_in_find->U.rt_len_arr_arr;
 	if(is_empty_return_) 
 	{
-		write(writing_data->writing_data,&bd,bazadata_path,writing_data->cnt_str);
+		write(writing_data->writing_data,&bd,bd_file_path,writing_data->cnt_str);
 		return true;
 	}
 	else return false;
@@ -504,7 +505,7 @@ int main(int argc,char *argv[])
 	test_bd.size_arr_in_bd=10;
 
 	char *value[3]={
-		"2",
+		"car",
 		"minch",
 		"11111"
 	};
