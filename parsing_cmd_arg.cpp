@@ -3,6 +3,7 @@
 #include "baza_data_main_func.h"
 #include "tools.h"
 #include "parsing_cmd_arg.h"
+#include "tcc_remake_var_check.h"
 #include <stdarg.h>
 
 typedef struct TCCOption {
@@ -12,6 +13,10 @@ typedef struct TCCOption {
 } TCCOption;
 
 enum { ERROR_WARN, ERROR_NOABORT, ERROR_ERROR };
+
+#define WARN_STR_TYPE_IN_INT 0x01
+#define WARN_FLOAT_TYPE_IN_INT 0x0f
+#define WARN_NULL_TYPE_IN_INT 0x01
 
 typedef struct CString {
     int size; /* size in bytes */
@@ -49,6 +54,10 @@ int Debug_Print(const char *fmt,...)
             if(s_next=='w')
                 type_print[iter]=PARCING_WARN;
             iter++;
+            /*
+            добавить обработку маркера f
+            он указует на строку fmt 
+            */
         }
 
     for(int i=0;i<cnt_arg;i++)
@@ -87,6 +96,53 @@ int Debug_Print(const char *fmt,...)
     va_end(ap);    
 }
 
+#define DEC_LEN 10
+
+char DEC[DEC_LEN]={0,1,2,3,4,5,6,7,8,9};
+
+bool is_string(char *str)
+{
+    bool res=true;
+    int len=strlen(str);
+    for(int i=0;i<len;i++)
+    {
+        bool num=false;
+        bool point=false;
+        for(int j=0;j<DEC_LEN;j++)
+            if(str[i]==DEC[j]) {num=true;break;}
+        if(!num) if(str[i]=='.') point=true;
+        if(!num&&!point) return true;
+    }
+    return false;
+}
+
+
+int str_check_var(char *str_var)
+{
+    bool is_float=false;
+    bool is_str=false;
+    bool is_int=true;
+    int bt=0;
+    int len=strlen(str_var);
+    is_str=is_string(str_var);
+
+    if(!is_str)
+    {
+        int cnt=counter_symbol_in_str(str_var,'.');
+        if(cnt==1) 
+        {
+            is_float=true;is_int=false;
+            bt=VT_FLOAT;
+        }
+        if(cnt>1) 
+        {
+            is_float=false;is_int=false;is_str=true;
+            bt=VT_STR;
+        }
+    }
+    if(!bt) bt=VT_INT;
+    return bt;
+}
 
 #define PACK_STACK_SIZE 8
 
@@ -319,17 +375,36 @@ enum {ERR,ERR_WARN};
 
 static int error1(int mode,const Remake_TCCState err_state,const char *fmt,...)
 {
+    va_list ap;
     int cnt_arg=counter_symbol_in_str(fmt,'%');
+    va_start(ap,cnt_arg);
     CString cs;
     if (mode == ERROR_WARN) {
             unsigned char wopt=err_state.warn_write_strings;
+            unsigned char wopt1=err_state.warn_num;
+            unsigned char wopt2=err_state.warn_error;
             if (0 == (wopt & WARN_ON))
                 printf("warning\n");//присоединить va_list
             if (wopt & WARN_ERR)
                 mode = ERROR_ERROR;
             if (wopt & WARN_NOE)
                 mode = ERROR_WARN;
-
+            
+            if(wopt1&WARN_NULL_TYPE_IN_INT)
+            {
+                Debug_Print("%s %f","warning type 0 invalid value\t",fmt,ap);
+                Debug_Print(fmt,ap);
+            }
+            if(wopt1&WARN_FLOAT_TYPE_IN_INT)
+            {
+                Debug_Print("%s %f","warning type the data type that should have been an integer is real\t",fmt,ap);
+                Debug_Print(fmt,ap);
+            }
+            if(wopt2&WARN_STR_TYPE_IN_INT)
+            {
+                Debug_Print("%s %f","warning type the data type that should have been an integer is string\t",fmt,ap);
+                Debug_Print(fmt,ap);
+            }
         
         
         if (err_state.warn_none)
@@ -337,9 +412,14 @@ static int error1(int mode,const Remake_TCCState err_state,const char *fmt,...)
     }
 
     if(!cnt_arg) 
+    {
+        Debug_Print("%s\tSTR_NUM = %d\tFILE = %s\tFUNCTION = %s","warning !cnt_arg",__LINE__,__FILE__,__func__);
+        return (0x1fff);
+    }
 
     if(mode==ERROR_ERROR) return ERR;
     if(mode==ERROR_WARN) return ERR_WARN;
+    va_end(ap);
 }
 
 void _tcc_remake_warning(const char *fmt, ...)
@@ -396,16 +476,13 @@ int tcc_parse_args(Remake_TCCState *s, int *pargc, char ***pargv, int optind)
                 state_parsing.error_func(0,"error tool == 0; close cnf file");
                 r=argv[optind];
                 if(!strlen(r))
-                {
                     state_parsing.warn_write_strings+=0x01;
-                    _tcc_remake_warning("%d = line\t%s = file\t%s\n",__LINE__,__FILE__,__func__);
-                    continue;
-                }
                 std::string path_f=r;
 
                 ++s->verbose;
             }
 
+            _tcc_remake_warning("%d = line\t%s = file\t%s\n",__LINE__,__FILE__,__func__);
             continue;
         }
         goto check1;
@@ -415,10 +492,16 @@ int tcc_parse_args(Remake_TCCState *s, int *pargc, char ***pargv, int optind)
             //write logic
             char *r_next=argv[optind];
             if(!strlen(r_next)) 
-            {
-                state_parsing.warn_write_strings+=0x01;
-                continue;
-            }
+                state_parsing.warn_write_strings=0x01;
+            if(!atoi(r_next)) 
+                state_parsing.warn_num+=0x01;
+            int get_bt=str_check_var(r_next);
+            if(is_float(get_bt))
+                state_parsing.warn_num+=0x0f;
+            if(is_string(r_next))
+                state_parsing.warn_error+=0x01;
+            
+            _tcc_remake_warning("%d = line\t%s = file\t%s\n",__LINE__,__FILE__,__func__);
         }
     }
 }
