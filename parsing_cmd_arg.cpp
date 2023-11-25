@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include "baza_data_main_func.h"
 #include "tools.h"
+#include "parsing_cmd_arg.h"
+#include <stdarg.h>
 
 typedef struct TCCOption {
     const char *name;
@@ -22,6 +24,68 @@ typedef struct CString {
 #define WARN_ERR 2 /* warning is an error (-Werror=option) */
 #define WARN_NOE 4 /* warning is not an error (-Wno-error=option) */
 
+int Debug_Print(const char *fmt,...)
+{
+    va_list ap;
+    int cnt_arg=counter_symbol_in_str(fmt,'%');
+    va_start(ap,cnt_arg);
+    int len=strlen(fmt);
+    unsigned char *type_print =(unsigned char*)_Malloc(sizeof(unsigned char)*cnt_arg,0);
+    int iter=0;
+    for(int i=0;i<len;i++)
+        if(fmt[i]=='%')
+        {
+            char s_next=fmt[i+1];
+            if(s_next=='s')
+                type_print[iter]=PARCING_STR;
+            if(s_next=='d')
+                type_print[iter]=PARSING_INTGER;
+            if(s_next=='g')
+                type_print[iter]=PARSING_DOUBL;
+            if(s_next=='c')
+                type_print[iter]=PARSING_CHR;
+            if(s_next=='e')
+                type_print[iter]=PARCING_ERR;
+            if(s_next=='w')
+                type_print[iter]=PARCING_WARN;
+            iter++;
+        }
+
+    for(int i=0;i<cnt_arg;i++)
+    {
+        switch (type_print[i])
+        {
+            case PARCING_STR:
+                va_arg(ap,PARSING_STRING);
+            break;
+
+            case PARSING_INTGER:
+                va_arg(ap,PARSING_INTEGER);
+            break;
+
+            case PARSING_DOUBL:
+                va_arg(ap,PARSING_DOUBLE);
+            break;
+
+            case PARSING_CHR:
+                va_arg(ap,PARSING_CHAR);
+            break;
+
+            case PARCING_ERR:
+                va_arg(ap,PARSING_ERROR);
+            break;
+
+            case PARCING_WARN:
+                va_arg(ap,PARSING_WARNING);
+            break;
+
+            default:
+                printf("%c\t%s\n",type_print[i],"Error:\tunknown marker");
+            break;
+        }
+    }
+    va_end(ap);    
+}
 
 
 #define PACK_STACK_SIZE 8
@@ -241,8 +305,21 @@ struct Remake_TCCState {
 
 Remake_TCCState state_parsing;
 
-static void error1(int mode,const Remake_TCCState err_state,const char *fmt, va_list ap)
+void init_remk_tccstate(Remake_TCCState *r_tcc)
 {
+    r_tcc->warn_error=0;
+    r_tcc->warn_num=0;
+    r_tcc->warn_all=0;
+}
+
+
+enum {ERR,ERR_WARN};
+
+#define WANR_NONE -1
+
+static int error1(int mode,const Remake_TCCState err_state,const char *fmt,...)
+{
+    int cnt_arg=counter_symbol_in_str(fmt,'%');
     CString cs;
     if (mode == ERROR_WARN) {
             unsigned char wopt=err_state.warn_write_strings;
@@ -252,22 +329,51 @@ static void error1(int mode,const Remake_TCCState err_state,const char *fmt, va_
                 mode = ERROR_ERROR;
             if (wopt & WARN_NOE)
                 mode = ERROR_WARN;
+
+        
         
         if (err_state.warn_none)
-            return;
+            return WANR_NONE;
     }
+
+    if(!cnt_arg) 
+
+    if(mode==ERROR_ERROR) return ERR;
+    if(mode==ERROR_WARN) return ERR_WARN;
 }
 
 void _tcc_remake_warning(const char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    error1(ERROR_WARN,state_parsing,fmt, ap);
+    error1(ERROR_WARN,state_parsing,fmt,ap);
     va_end(ap);
+    state_parsing.warn_write_strings-=0x01;
+}
+
+void _tcc_remake_error(const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    error1(ERROR_ERROR, state_parsing,fmt,ap);
+}
+
+typedef void (*TCCErrorFunc)(void *opaque, const char *msg);
+
+void tcc_set_error_func(Remake_TCCState *s, void *error_opaque, TCCErrorFunc error_func)
+{
+    s->error_opaque = error_opaque;
+    s->error_func = error_func;
+}
+
+void Error_Func1(void *opaque,const char *msg)
+{
+    Debug_Print("%s\n",msg);
 }
 
 int tcc_parse_args(Remake_TCCState *s, int *pargc, char ***pargv, int optind)
 {
+    init_remk_tccstate(&state_parsing);
     Remake_TCCState *s1 = s;
     const TCCOption *popt;
     const char *optarg, *r;
@@ -281,26 +387,38 @@ int tcc_parse_args(Remake_TCCState *s, int *pargc, char ***pargv, int optind)
     {
         r = argv[optind];
         optind++;
-        if(tool)
+        if(tool) // alpha 0.1.2 open ровняет tool к 0 а close к 1 так же в alpha 0.2 если выполняются запросы к фаилу cfg и tool!=0 то выдастца ошибка
         {
             if (r[0] == 'B' && r[1] == 'D' && r[2] == ' ')
             {
+                check1:
+                if(!tool) tcc_set_error_func(&state_parsing,0,Error_Func1);
+                state_parsing.error_func(0,"error tool == 0; close cnf file");
                 r=argv[optind];
                 if(!strlen(r))
                 {
-                    state_parsing.warn_write_strings=0x01;
+                    state_parsing.warn_write_strings+=0x01;
+                    _tcc_remake_warning("%d = line\t%s = file\t%s\n",__LINE__,__FILE__,__func__);
                     continue;
                 }
+                std::string path_f=r;
 
                 ++s->verbose;
             }
+
             continue;
         }
-        
+        goto check1;
 
         if(str_tojdesto(r,"write"))
         {
             //write logic
+            char *r_next=argv[optind];
+            if(!strlen(r_next)) 
+            {
+                state_parsing.warn_write_strings+=0x01;
+                continue;
+            }
         }
     }
 }

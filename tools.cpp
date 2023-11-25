@@ -62,6 +62,24 @@ char *_str_to_char(std::string str)
     return res;
 }
 
+int counter_symbol_in_str(const char *str,char s)
+{
+    int res=0;
+    int len=strlen(str);
+    for(int i=0;i<len;i++)
+        if(str[i]==s) res++;
+    return res;
+}
+
+int counter_symbol_in_str(std::string str,char s)
+{
+    int res=0;
+    int len=str.size();
+    for(int i=0;i<len;i++)
+        if(str[i]==s) res++;
+    return res;
+}
+
 token *_str_to_tokens(const char *str,int *arrlen,int *cnt_tk)
 {
     size_t len=strlen(str);

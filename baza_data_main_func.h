@@ -52,6 +52,7 @@ struct Writing_Str_Arr_Data
 	int cnt_str;
 };
 
+
 typedef struct Writing_Str_Arr_Data Writing_SAD;
 
 //memory
