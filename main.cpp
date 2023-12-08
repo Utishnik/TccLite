@@ -231,6 +231,29 @@ token** find_value_in_bd(char* value, string* db,int count_str,int max_len_str,i
 }
 
 
+void Init_BD(BD *bd)
+{
+	bd->bd="";
+	bd->is_ref=false;
+	bd->next=0;
+	bd->size_arr_in_bd=0;
+	bd->count_str_in_bd=0;
+	#ifdef IN_Static_BD_str_len
+		string *bd;                                                     int count_str_in_bd;
+                int len_str;
+	#endif
+}
+
+bool Put_BD(BD *bd,std::string *arr_bd,int next,int size_arr_in_bd,int cnt_str_in_bd)
+{
+	Init_BD(bd);
+	bd->next=next;
+	bd->size_arr_in_bd=size_arr_in_bd;
+	bd->count_str_in_bd=sise_arr_in_bd;
+
+}//rewrite можно сделать через уставление next на место нужной строки
+ 
+
 void char_str_init(char *str,const char *str2,int len) { for(int i=0;i<len;i++) str[i]=str2[i];}
 
 template <typename T>
@@ -284,14 +307,41 @@ bool write(char str[CNT_COL][MX_LN_STR_BD],BD *bd,string path_file,bool write_in
 	
 }
 
+inline bool delete_str(BD *bd,std::string path_file,int line_delete,bool auto_uping=true)
+{
+	int size=get_BD_size_arr_in_bd((*bd));
+	if(!size)
+	{
+		debug_print("error bd is empty");
+		return false;
+	}
+	free(bd->bd[line_delete]);
+	if(auto_uping)
+	{
+		//O(n-k) 
+		db->db[line_delete]=db->db[line_delete+1];
+	}
+}
+
+bool rewrite_str_in_bd(BD *bd,std::string *str,int line_num,int size_str_arr)
+{
+	bd->bd[line_num]=str;
+	int size=sise_str_arr;
+}//
+
 //todo added fucntion bool write_auto_realloc()
-bool write(std::string *str,BD *bd,std::string path_file,int writing_str_cnt_col,bool write_in_file=true)
+bool write(std::string *str,BD *bd,std::string path_file,int writing_str_cnt_col,bool write_in_file=true,bool auto_realloc=true)
 {
 
 	int cnt_str_arr_writing=get_BD_cnt_str_in_db((*bd));
 	int index=get_DB_next_index((*bd));
 	int size=get_BD_size_arr_in_bd((*bd));
-	if(size<=cnt_str_arr_writing) {debug_print("size <= cnt_str_arr_writing  func - bool write(string *,...)");return false;}	
+	if(!auto_realloc)
+		if(size<=cnt_str_arr_writing) {debug_print("size <= cnt_str_arr_writing  func - bool write(string *,...)");return false;}
+	else{
+		if(size<=cnt_arr_writing) 
+			bd->bd=realloc(sizeof(*bd)*cnt_str_arr_writing;
+	}
 	for(int i=0;i<writing_str_cnt_col;i++)
 	{
 		bd->bd[i+index]=str[i];

@@ -13,3 +13,6 @@ rewritefile cnt_index cnt_str1 cntstr2 ..indexes.. ...strs.. перезапис�
 write alpha 0.1 
 delete aplha 0.1
 rewrite alpha 0.1.1
+deletecol str col and params str word
+rewritecol str col and params str word
+

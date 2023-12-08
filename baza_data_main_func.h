@@ -33,6 +33,7 @@ string* read();
 
 struct BD{
 	int next_index;
+	bool is_ref;
 	int size_arr_in_bd;//размер самого массива строк (*bd)
 	#ifndef IN_Static_BD_str_len
 		string *bd;

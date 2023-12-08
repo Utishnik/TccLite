@@ -496,12 +496,20 @@ int tcc_parse_args(Remake_TCCState *s, int *pargc, char ***pargv, int optind)
             if(!atoi(r_next)) 
                 state_parsing.warn_num+=0x01;
             int get_bt=str_check_var(r_next);
-            if(is_float(get_bt))
+            if(is_float(r_next))
                 state_parsing.warn_num+=0x0f;
             if(is_string(r_next))
                 state_parsing.warn_error+=0x01;
-            
-            _tcc_remake_warning("%d = line\t%s = file\t%s\n",__LINE__,__FILE__,__func__);
+			
+          if( _tcc_remake_warning("%d = line\t%s = file\t%s\n",__LINE__,__FILE__,__func__))return WARN_ON; 
+	
+	  
         }
+
+	if(str_tojdesto(r,"delete"))
+	{
+		char *r_next=argv[optind];
+		
+	}
     }
 }
