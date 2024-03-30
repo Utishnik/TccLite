@@ -31,6 +31,7 @@ typedef struct CString {
 
 int Debug_Print(const char *fmt,...)
 {
+    int unknow_marker_cnt=0;
     va_list ap;
     int cnt_arg=counter_symbol_in_str(fmt,'%');
     va_start(ap,cnt_arg);
@@ -90,10 +91,12 @@ int Debug_Print(const char *fmt,...)
 
             default:
                 printf("%c\t%s\n",type_print[i],"Error:\tunknown marker");
+                unknow_marker_cnt++;
             break;
         }
     }
     va_end(ap);    
+    return unknow_marker_cnt;
 }
 
 #define DEC_LEN 10
@@ -422,13 +425,14 @@ static int error1(int mode,const Remake_TCCState err_state,const char *fmt,...)
     va_end(ap);
 }
 
-void _tcc_remake_warning(const char *fmt, ...)
+bool _tcc_remake_warning(const char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    error1(ERROR_WARN,state_parsing,fmt,ap);
+    bool rt=error1(ERROR_WARN,state_parsing,fmt,ap);
     va_end(ap);
     state_parsing.warn_write_strings-=0x01;
+    return rt;
 }
 
 void _tcc_remake_error(const char *fmt, ...)
@@ -489,27 +493,35 @@ int tcc_parse_args(Remake_TCCState *s, int *pargc, char ***pargv, int optind)
 
         if(str_tojdesto(r,"write"))
         {
-            //write logic
             char *r_next=argv[optind];
             if(!strlen(r_next)) 
                 state_parsing.warn_write_strings=0x01;
             if(!atoi(r_next)) 
                 state_parsing.warn_num+=0x01;
             int get_bt=str_check_var(r_next);
-            if(is_float(r_next))
+            if(is_float(get_bt))
                 state_parsing.warn_num+=0x0f;
             if(is_string(r_next))
                 state_parsing.warn_error+=0x01;
 			
-          if( _tcc_remake_warning("%d = line\t%s = file\t%s\n",__LINE__,__FILE__,__func__))return WARN_ON; 
-	
-	  
+            if( _tcc_remake_warning("%d = line\t%s = file\t%s\n",__LINE__,__FILE__,__func__))return WARN_ON; 
+            
         }
 
 	if(str_tojdesto(r,"delete"))
 	{
 		char *r_next=argv[optind];
-		
+		if(!strlen(r_next)) 
+            state_parsing.warn_write_strings=0x01;
+        if(!atoi(r_next)) 
+            state_parsing.warn_num+=0x01;
+        int get_bt=str_check_var(r_next);
+        if(is_float(get_bt))
+            state_parsing.warn_num+=0x0f;
+        if(is_string(r_next))
+            state_parsing.warn_error+=0x01;
+			
+        if( _tcc_remake_warning("%d = line\t%s = file\t%s\n",__LINE__,__FILE__,__func__))return WARN_ON; 
 	}
     }
 }

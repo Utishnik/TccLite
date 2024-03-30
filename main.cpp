@@ -134,7 +134,7 @@ void add_str_end_probel(char *str)
 	str[len]=' ';
 	str[len+1]='\0';
 }
-bool str_tojdesto(char *str1,char *str2);
+bool str_tojdesto(const char *str1,const char *str2);
 
 void debug_print(const char *str);
 
@@ -233,27 +233,27 @@ token** find_value_in_bd(char* value, string* db,int count_str,int max_len_str,i
 
 void Init_BD(BD *bd)
 {
-	bd->bd="";
+	std::string empty="";
+	bd->bd[0]=empty;
 	bd->is_ref=false;
-	bd->next=0;
+	bd->next_index=0;
 	bd->size_arr_in_bd=0;
 	bd->count_str_in_bd=0;
-	#ifdef IN_Static_BD_str_len
-		string *bd;                                                     int count_str_in_bd;
-                int len_str;
-	#endif
 }
 
 bool Put_BD(BD *bd,std::string *arr_bd,int next,int size_arr_in_bd,int cnt_str_in_bd)
 {
+	if(!bd) {fprintf(stderr,"%s\t%d\t%s","bd is null",__LINE__,__func__); return false;}
+	if(!arr_bd) {fprintf(stderr,"%s\t%d\t%s","arr_bd is null",__LINE__,__func__); return false;}
 	Init_BD(bd);
-	bd->next=next;
+	bd->bd=arr_bd;
+	bd->next_index=next;
 	bd->size_arr_in_bd=size_arr_in_bd;
-	bd->count_str_in_bd=sise_arr_in_bd;
+	bd->count_str_in_bd=cnt_str_in_bd;
+	return true;
 
 }//rewrite можно сделать через уставление next на место нужной строки
  
-
 void char_str_init(char *str,const char *str2,int len) { for(int i=0;i<len;i++) str[i]=str2[i];}
 
 template <typename T>
@@ -304,7 +304,7 @@ void _token_w_init(_token_w *a,int indx,int num,bool unique_pos)
 //записует строки в базу данных(в сам массив строк и в фаил)
 bool write(char str[CNT_COL][MX_LN_STR_BD],BD *bd,string path_file,bool write_in_file=true)
 {
-	
+	return true;
 }
 
 inline bool delete_str(BD *bd,std::string path_file,int line_delete,bool auto_uping=true)
@@ -315,18 +315,20 @@ inline bool delete_str(BD *bd,std::string path_file,int line_delete,bool auto_up
 		debug_print("error bd is empty");
 		return false;
 	}
-	free(bd->bd[line_delete]);
+	bd->bd[line_delete]="";
 	if(auto_uping)
 	{
 		//O(n-k) 
-		db->db[line_delete]=db->db[line_delete+1];
+		bd->bd[line_delete]=bd->bd[line_delete+1];
 	}
 }
 
-bool rewrite_str_in_bd(BD *bd,std::string *str,int line_num,int size_str_arr)
+bool rewrite_str_in_bd(BD *bd,std::string str,int line_num,int size_str_arr)
 {
 	bd->bd[line_num]=str;
-	int size=sise_str_arr;
+	int size=size_str_arr;
+	if(bd) return true;
+	return false;
 }//
 
 //todo added fucntion bool write_auto_realloc()
@@ -339,8 +341,8 @@ bool write(std::string *str,BD *bd,std::string path_file,int writing_str_cnt_col
 	if(!auto_realloc)
 		if(size<=cnt_str_arr_writing) {debug_print("size <= cnt_str_arr_writing  func - bool write(string *,...)");return false;}
 	else{
-		if(size<=cnt_arr_writing) 
-			bd->bd=realloc(sizeof(*bd)*cnt_str_arr_writing;
+		if(size<=cnt_str_arr_writing) 
+			bd->bd=(std::string*)realloc(bd->bd,sizeof(*bd)*cnt_str_arr_writing);
 	}
 	for(int i=0;i<writing_str_cnt_col;i++)
 	{
@@ -357,6 +359,7 @@ bool write(std::string *str,BD *bd,std::string path_file,int writing_str_cnt_col
 
 bool rewrite_full_bd(BD *bd,string path_file)//перезаписует полностью базу данных в указаный фаил
 {
+	if(!bd) return false;
 	int cnt_str=bd->count_str_in_bd;
 	//удаляет все из фаила
 	std::string empty="";
@@ -373,6 +376,7 @@ bool rewrite_full_bd(BD *bd,string path_file)//перезаписует полн
 			#endif
 		}
 	fclose(f);
+	return true;
 }
 
 void debug_print(const char *str) //todo import to debug_tools.cpp
@@ -601,6 +605,7 @@ int main(int argc,char *argv[])
 	_token_w ***arr;
 	DRW_in_bd test_drw;
 	#define ZAGLUSHKA 0
+	
 	if(write_full_str_in_bd(&test,test_bd,value,ind_a,"",2,128,3,&arr,&test_drw,test_inx_u_col))
 		printf("true\n");
 	else

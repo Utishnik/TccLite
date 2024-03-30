@@ -27,7 +27,24 @@
 #define VT_VLA         0x0400  /* VLA type (also has VT_PTR and VT_ARRAY) */
 #define VT_LONG        0x0800  /* long type (also has VT_INT rsp. VT_LLONG) */
 #define VT_STR         0x1000  /*char *str or std::string type*/
-#endif
 
-ST_INLN int is_integer_btype(int bt);
-ST_INLN int is_float(int t);
+ST_INLN int is_float(int t)
+{
+    int bt = t & VT_BTYPE;
+    return bt == VT_LDOUBLE
+        || bt == VT_DOUBLE
+        || bt == VT_FLOAT
+        || bt == VT_QFLOAT;
+}
+
+ST_INLN int is_integer_btype(int bt)
+{
+    return bt == VT_BYTE
+        || bt == VT_BOOL
+        || bt == VT_SHORT
+        || bt == VT_INT
+        || bt == VT_LLONG;
+}
+
+
+#endif

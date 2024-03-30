@@ -1,0 +1,10 @@
+^C:\BAZA_DATA\EASY_PROGMMING_BD\TMP\CMAKEFILES\2A290D60FE4512A46A0C56A00CD7EBBD\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/baza_data/easy_progmming_bd -BC:/baza_data/easy_progmming_bd/tmp --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/baza_data/easy_progmming_bd/tmp/Baza_Data_mini.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

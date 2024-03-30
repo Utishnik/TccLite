@@ -1,0 +1,3 @@
+C:/baza_data/easy_progmming_bd/tmp/CMakeFiles/bd.dir
+C:/baza_data/easy_progmming_bd/tmp/CMakeFiles/ALL_BUILD.dir
+C:/baza_data/easy_progmming_bd/tmp/CMakeFiles/ZERO_CHECK.dir
