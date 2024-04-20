@@ -318,9 +318,12 @@ inline bool delete_str(BD *bd,std::string path_file,int line_delete,bool auto_up
 	bd->bd[line_delete]="";
 	if(auto_uping)
 	{
+		//n - cnt str
+		//k - number str 
 		//O(n-k) 
 		bd->bd[line_delete]=bd->bd[line_delete+1];
 	}
+	return true;
 }
 
 bool rewrite_str_in_bd(BD *bd,std::string str,int line_num,int size_str_arr)
@@ -355,6 +358,12 @@ bool write(std::string *str,BD *bd,std::string path_file,int writing_str_cnt_col
 			fclose(f);
 		}
 	}
+}
+
+
+static int find_match_in_func()
+{
+	
 }
 
 bool rewrite_full_bd(BD *bd,string path_file)//перезаписует полностью базу данных в указаный фаил
@@ -456,6 +465,8 @@ _token_w **fndarr_processing(struct token **fndarr,int *index_unique_col,int *ar
 	return result;
 }
 
+
+
 struct Data_return_Write_Full_Str_In_BD
 {
 	bool **is_empty_arr;
@@ -483,6 +494,7 @@ typedef struct Data_return_Write_Full_Str_In_BD  DRW_in_bd; //abbreviated name
 bool write_full_str_in_bd(Writing_SAD *writing_data,BD bd,char **unique_value_arr,int *array_in_unique_indx,string bazadata_path,int len_array_in_unique_indx,
 int len_str_in_unqe_vle_arr,int cntcol_in_unique_vle_arr,_token_w ****return_,DRW_in_bd *ret_drw_in_find,int *index_unique_col,int mxlenstr=128,int mxlentk=128,int cntfndtk=128)
 {
+	printf("db\n");
 	int cnt_str_writing_data=bd.count_str_in_bd;
 	int max_str_len=find_mx_len_str_array(writing_data->writing_data,cnt_str_writing_data);
 
@@ -514,6 +526,7 @@ int len_str_in_unqe_vle_arr,int cntcol_in_unique_vle_arr,_token_w ****return_,DR
 		_token_w **rt_value = fndarr_processing(arr,index_unique_col,arrlen,bd.count_str_in_bd,&rt_len_arr);
 		
 		//debug code
+		/*
 			for(int i1=0;i1<bd.count_str_in_bd;i1++)
 			{
 				printf("str number  %d\t",(i1+1));
@@ -523,6 +536,7 @@ int len_str_in_unqe_vle_arr,int cntcol_in_unique_vle_arr,_token_w ****return_,DR
 				}
 				printf("\n");
 			}
+			*/
 		//
 
 		for(int i1=0;i1<bd.count_str_in_bd;i1++)
@@ -605,7 +619,7 @@ int main(int argc,char *argv[])
 	_token_w ***arr;
 	DRW_in_bd test_drw;
 	#define ZAGLUSHKA 0
-	
+	printf("db2\n");
 	if(write_full_str_in_bd(&test,test_bd,value,ind_a,"",2,128,3,&arr,&test_drw,test_inx_u_col))
 		printf("true\n");
 	else

@@ -1,0 +1,16 @@
+﻿  main.cpp
+C:\baza_data\easy_progmming_bd\main.cpp(93,6): warning C4101: int_iterator: неиспользованная локальная переменная
+C:\baza_data\easy_progmming_bd\main.cpp(91,6): warning C4101: double_iterator: неиспользованная локальная переменная
+C:\baza_data\easy_progmming_bd\main.cpp(92,6): warning C4101: string_iterator: неиспользованная локальная переменная
+C:\baza_data\easy_progmming_bd\main.cpp(133,9): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
+C:\baza_data\easy_progmming_bd\main.cpp(170,13): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
+C:\baza_data\easy_progmming_bd\main.cpp(172,2): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\baza_data\easy_progmming_bd\main.cpp(182,10): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
+C:\baza_data\easy_progmming_bd\main.cpp(183,10): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
+C:\baza_data\easy_progmming_bd\main.cpp(352,12): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\baza_data\easy_progmming_bd\main.cpp(366,10): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\baza_data\easy_progmming_bd\main.cpp(370,4): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\baza_data\easy_progmming_bd\main.cpp(499,3): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\baza_data\easy_progmming_bd\main.cpp(358): warning C4715: write: значение возвращается не при всех путях выполнения
+  LINK : не найден или не выполнена сборка C:\baza_data\easy_progmming_bd\tmp\Debug\bd.exe при последней инкрементной компоновке; выполняется полная компоновка
+  bd.vcxproj -> C:\baza_data\easy_progmming_bd\tmp\Debug\bd.exe
