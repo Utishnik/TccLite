@@ -58,6 +58,10 @@
         "xlocmon": "cpp",
         "xlocnum": "cpp",
         "xloctime": "cpp",
-        "xstring": "cpp"
+        "xstring": "cpp",
+        "forward_list": "cpp",
+        "regex": "cpp",
+        "xlocinfo": "cpp",
+        "xutility": "cpp"
     }
 }

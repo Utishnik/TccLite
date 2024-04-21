@@ -73,24 +73,30 @@ struct M_OBJ{
     float Fvalue;
     std::string Svalue;
     void *ptr;//object and array 
+    size_t len_mem;
 };
 
 struct Type_Map{
     Basic_Type Type;
     M_OBJ *ptr;
-    int key;
+    std::string key;
 };
 
 class JsonLexer{
 
     public:
+    std::string JSON;
+    std::size_t size;
     InputAdapterType ia;
 
     /// whether comments should be ignored (true) or signaled as errors (false)
     const bool ignore_comments = false;
 
+    std::string error_message;
+
     /// the current character
-    char current = -1;
+    long long current = -1;
+    std::string token_string;
 
     /// whether the next get() call should just return current
     bool next_unget = false;
@@ -99,10 +105,10 @@ class JsonLexer{
     position_t position;
 
     /// raw input token string (for error messages)
-    std::string *token_string;
+    std::string token_string;
 
     /// buffer for variable-length tokens (numbers, strings)
-    std::string token_buffer {};
+    std::string token_buffer {}; // array token clearing if scaning new type_key хранит значение спарсиное с json 
 
     /// a description of occurred lexer errors
     const char* error_message = "";

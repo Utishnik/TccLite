@@ -52,32 +52,33 @@ error_type get_arithmetic_value(const Basic_Type *scan_type,Arithmetic_Type *ari
             // use integer array index as key
             case Json_Types::ARRAY:
             {
-                if (array_index != array_index_last)
-                {
-                    int_to_string( array_index_str, array_index );
-                    array_index_last = array_index;
-                }
-                return array_index_str;
+                return JL->type_map->key;
             }
 
             // use key from the object
             case Json_Types::OBJ:
-                return anchor.key();
+                return JL->type_map->key;
 
             // use an empty key for all primitive types
-            case value_t::null:
-            case value_t::string:
-            case value_t::boolean:
-            case value_t::number_integer:
-            case value_t::number_unsigned:
-            case value_t::number_float:
-            case value_t::binary:
-            case value_t::discarded:
+            case Json_Types::JNULL:
+            case Json_Types::STRING:
+            case Json_Types::BOOL:
+            case Json_Types::INT:
+            case Json_Types::UNSIGNED:
+            case Json_Types::FLOAT:
+            case Json_Types::BIN:
+            case Json_Types::DISC:
             default:
-                return empty_str;
+                return "";
         }
     }
 
+void int_to_string( std::string target, std::size_t value )
+{
+    // For ADL
+    using std::to_string;
+    target = to_string(value);
+}
 
 struct uchar_traits
 {
@@ -125,24 +126,24 @@ struct schar_traits
 };
 
 
-   char get(JsonLexer *JL)
-    {
-        JL->position.chars_read_total++; //++position.chars_read_total;
-        JL->position.chars_read_current_line++;//++position.chars_read_current_line;
+char get(JsonLexer *JL)
+{
+    JL->position.chars_read_total++; //++position.chars_read_total;
+    JL->position.chars_read_current_line++;//++position.chars_read_current_line;
 
         if (JL->next_unget)
         {
-            // just reset the next_unget variable and work with current
-            JL->next_unget = false;
+                // just reset the next_unget variable and work with current
+                JL->next_unget = false;
         }
         else
         {
             current = JL->ia.get_character();
         }
 
-        if (JSON_HEDLEY_LIKELY(current != char_traits<char_type>::eof()))
+        if (current != JL->size)
         {
-            token_string.push_back(char_traits<char_type>::to_char_type(current));
+            JL->token_string.push_back(JL->JSON[current]);// строка которая очищается при новом токене тоетсь это не массив строк
         }
 
         if (current == '\n')
@@ -152,8 +153,202 @@ struct schar_traits
         }
 
         return current;
-    }
+}
 
+ void unget(JsonLexer *JL)
+{
+        JL->next_unget = true;
+
+        JL->position.chars_read_total--;
+
+        // in case we "unget" a newline, we have to also decrement the lines_read
+        if (JL->position.chars_read_current_line == 0)
+        {
+            if (JL->position.lines_read > 0)
+            {
+                JL->position.lines_read--;
+            }
+        }
+        else
+        {
+            JL->position.chars_read_current_line--;
+        }
+
+        if (current != JL->size)
+        {
+            assert(JL->token_string.empty());
+            JL->token_string.pop_back();
+        }
+}
+
+
+while (is_ws_char(c))
+{
+	if ((!ADVANCE_CHAR(str, tok)) || (!PEEK_CHAR(c, tok)))
+	goto out;
+}
+if (c == '/' && !(tok->flags & JSON_TOKENER_STRICT))
+{
+    printbuf_reset(tok->pb);
+	printbuf_memappend_checked(tok->pb, &c, 1);
+	state = json_tokener_state_comment_start;
+}
+else
+{
+    state = saved_state;
+	goto redo_char;
+}
+			break;
+
+		case json_tokener_state_start:
+			switch (c)
+			{
+			case '{':
+				state = json_tokener_state_eatws;
+				saved_state = json_tokener_state_object_field_start;
+				current = json_object_new_object();
+				if (current == NULL)
+				{
+					tok->err = json_tokener_error_memory;
+					goto out;
+				}
+				break;
+			case '[':
+				state = json_tokener_state_eatws;
+				saved_state = json_tokener_state_array;
+				current = json_object_new_array();
+				if (current == NULL)
+				{
+					tok->err = json_tokener_error_memory;
+					goto out;
+				}
+				break;
+			case 'I':
+			case 'i':
+				state = json_tokener_state_inf;
+				printbuf_reset(tok->pb);
+				tok->st_pos = 0;
+				goto redo_char;
+			case 'N':
+			case 'n':
+				state = json_tokener_state_null; // or NaN
+				printbuf_reset(tok->pb);
+				tok->st_pos = 0;
+				goto redo_char;
+			case '\'':
+				if (tok->flags & JSON_TOKENER_STRICT)
+				{
+					/* in STRICT mode only double-quote are allowed */
+					tok->err = json_tokener_error_parse_unexpected;
+					goto out;
+				}
+				/* FALLTHRU */
+			case '"':
+				state = json_tokener_state_string;
+				printbuf_reset(tok->pb);
+				tok->quote_char = c;
+				break;
+			case 'T':
+			case 't':
+			case 'F':
+			case 'f':
+				state = json_tokener_state_boolean;
+				printbuf_reset(tok->pb);
+				tok->st_pos = 0;
+				goto redo_char;
+			case '0':
+			case '1':
+			case '2':
+			case '3':
+			case '4':
+			case '5':
+			case '6':
+			case '7':
+			case '8':
+			case '9':
+			case '-':
+				state = json_tokener_state_number;
+				printbuf_reset(tok->pb);
+				tok->is_double = 0;
+				goto redo_char;
+			default: tok->err = json_tokener_error_parse_unexpected; goto out;
+			}
+			break;
+
+bool is_eof(JsonLexer *JL)
+{
+    return !(JL->current!=JL->size);
+}
+
+bool scan_comment(JsonLexer *JL)
+    {
+        switch (get(JL))
+        {
+            // single-line comments skip input until a newline or EOF is read
+            case '/':
+            {
+                while (true)
+                {
+                    switch (get(JL))
+                    {
+                        case '\n':
+                        case '\r':
+                        case '\0':
+                            return true;
+
+                        default:
+                            if(is_eof(JL)) return true;
+                            break;
+                    }
+                }
+            }
+
+            // multi-line comments skip input until */ is read
+            case '*':
+            {
+                while (true)
+                {
+                    switch (get(JL))
+                    {
+                        case '\0':
+                        {
+                            JL->error_message = "invalid comment; missing closing '*/'";
+                            return false;
+                        }
+
+                        case '*':
+                        {
+                            switch (get(JL))
+                            {
+                                case '/':
+                                    return true;
+
+                                default:
+                                {
+                                    unget(JL);
+                                    continue;
+                                }
+                            }
+                        }
+
+                        default:
+                            if(is_eof(JL)) {
+                                JL->error_message = "invalid comment; missing closing '*/'";
+                                return false;
+                            }
+                            continue;
+                    }
+                }
+            }
+
+            // unexpected character after reading '/'
+            default:
+            {
+                JL->error_message = "invalid comment; expecting '/' or '*' after '/'";
+                return false;
+            }
+        }
+    }
 
 template<typename BasicJsonType>
 class lexer_base

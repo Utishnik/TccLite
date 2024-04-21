@@ -3,3 +3,18 @@ adding lua and luajit
     -for working with the database
 add uuid,ssl word,socket work
 fix warning
+
+
+JSON PARSER 
+-adding парсинг нескольких json фаилов одновременно и хоанить их в одной памяти
+-adding new type MATRIX TENSOR VECTOR и оператор переноса строки \ и знак повышение размерности #+
+Example:
+
+"vector":<10,11,11>
+"Matrix":<10,11,11> \
+<11,12,12>
+
+"Tensor":<10,11,11>,
+<12,12,11> #+
+<10,11,11> \ 
+<12,12,11>
