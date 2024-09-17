@@ -1,6 +1,7 @@
 #include "tools.h"
 #include <string>
 #include <string.h>
+#include "Hash.h"
 #include "baza_data_main_func.h" //todo убрать функцию counter_probels_string, init2darr, init3darr,free2darr и другие в tools
 
 #define Max_Token_Len 1024
@@ -140,4 +141,45 @@ int find_mx_len_str_array(char** str,int cnt_str)
         if(strlen(str[i])>max_strlen)
             max_strlen=strlen(str[i]);
     return max_strlen;
+}
+
+int sqlite3_stricmp(const char *zLeft, const char *zRight){
+  if( zLeft==0 ){
+    return zRight ? -1 : 0;
+  }else if( zRight==0 ){
+    return 1;
+  }
+  return sqlite3StrICmp(zLeft, zRight);
+}
+int sqlite3StrICmp(const char *zLeft, const char *zRight)
+{
+  unsigned char *a, *b;
+  int c, x;
+  a = (unsigned char *)zLeft;
+  b = (unsigned char *)zRight;
+  for(;;){
+    c = *a;
+    x = *b;
+    if( c==x ){
+      if( c==0 ) break;
+    }else{
+      c = (int)sqlite3UpperToLower[c] - (int)sqlite3UpperToLower[x];
+      if( c ) break;
+    }
+    a++;
+    b++;
+  }
+  return c;
+}
+int sqlite3_strnicmp(const char *zLeft, const char *zRight, int N){
+  register unsigned char *a, *b;
+  if( zLeft==0 ){
+    return zRight ? -1 : 0;
+  }else if( zRight==0 ){
+    return 1;
+  }
+  a = (unsigned char *)zLeft;
+  b = (unsigned char *)zRight;
+  while( N-- > 0 && *a!=0 && sqlite3UpperToLower[*a]==sqlite3UpperToLower[*b]){ a++; b++; }
+  return N<0 ? 0 : sqlite3UpperToLower[*a] - sqlite3UpperToLower[*b];
 }

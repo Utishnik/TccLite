@@ -1,6 +1,7 @@
 #include "baza_data_main_func.h"
 #include "inline_tools.h"
 #include "debug.h"
+#include "Hash.h"
 
 #define memory_debug //если memory_debug есть то _Malloc выводит отладочную информацию
 //#define malloc _Malloc //заменяет malloc на функцию amlloc с оберткой для отладки находящияся в фаиле tools.cpp реализация tools.h прототип
@@ -559,6 +560,7 @@ int len_str_in_unqe_vle_arr,int cntcol_in_unique_vle_arr,_token_w ****return_,DR
 using namespace std;
 int main(int argc,char *argv[])
 {
+	Fill_Upper_To_Lower();
 	BD test_bd;
 	string db_txt[10]={
 		"minch 130",

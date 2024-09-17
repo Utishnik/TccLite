@@ -4,9 +4,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <string>
-
+#include <tools.h>
+#include <assert.h>
 
 void *_Malloc(size_t size,int *err);
+int sqlite3StrICmp(const std::string zLeft, const std::string zRight);
 
 template <typename T>
 size_t _array_size(T *arr);
