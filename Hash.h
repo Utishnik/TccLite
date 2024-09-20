@@ -30,3 +30,4 @@ static HashElem *findElementWithHash(
 );
 
 void Fill_Upper_To_Lower();
+void *sqlite3HashFind(const Hash *pH, const char *pKey);

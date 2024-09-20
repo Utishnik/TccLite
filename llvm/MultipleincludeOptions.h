@@ -1,4 +1,5 @@
 #include "SourceLocation.h"
+#include "IdentifierTable.h"
 
 class MultipleIncludeOpt {
   /// ReadAnyTokens - This is set to false when a file is first opened and true

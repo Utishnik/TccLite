@@ -62,6 +62,8 @@
         "forward_list": "cpp",
         "regex": "cpp",
         "xlocinfo": "cpp",
-        "xutility": "cpp"
+        "xutility": "cpp",
+        "bitset": "cpp",
+        "map": "cpp"
     }
 }

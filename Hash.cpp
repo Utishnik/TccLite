@@ -1,5 +1,12 @@
 #include "Hash.h"
 #include "debug.h"
+#include "sqlfault.cpp"
+
+void *sqlite3HashFind(const Hash *pH, const char *pKey){
+  assert( pH!=0 );
+  assert( pKey!=0 );
+  return findElementWithHash(pH, pKey, 0)->data;
+}
 
 void Fill_Upper_To_Lower()
 {
