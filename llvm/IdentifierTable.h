@@ -1,9 +1,8 @@
 #ifndef LLVMITABLE
 #define LLVMITABLE
 #define LLVM_PREFERRED_TYPE(T)
-
-#include <stdio.h>
-#include <stdlib.h>
+#include "tools.h"
+#include "tokens/TokenKinds.h"
 
 namespace LLVM_CLANG
 {
@@ -168,8 +167,8 @@ namespace LLVM_CLANG
         }
 
         /// Return true if this is the identifier for the specified StringRef.
-        bool isStr(llvm::StringRef Str) const {
-            llvm::StringRef ThisStr(getNameStart(), getLength());
+        bool isStr(std::string Str) const {
+            std::string ThisStr(getNameStart(), getLength());
             return ThisStr == Str;
         }
 
